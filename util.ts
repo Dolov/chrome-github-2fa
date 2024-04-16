@@ -14,6 +14,7 @@ export {
 }
 
 const DATA_SOURCE = "DATA_SOURCE"
+const RECOVERY_CODE = "RECOVERY_CODE"
 
 export const storage = new Storage()
 
@@ -24,26 +25,27 @@ export interface TFAProps {
 	account: string,
 }
 
-class DataSource {
-
-	constructor() {
-		
+class DataSource<T> {
+	storageKey: string
+	constructor(key: string) {
+		this.storageKey = key
 	}
 
 	async set(key, params) {
-		const data = await storage.get(DATA_SOURCE) || {}
+		const data = await storage.get(this.storageKey) || {}
 		data[key] = params
-		await storage.set("DATA_SOURCE", data)
+		await storage.set(this.storageKey, data)
 		return data
 	}
 
-	async get(): Promise<Record<string, TFAProps>> {
-		const data: Record<string, TFAProps> = await storage.get(DATA_SOURCE) || {}
+	async get(): Promise<Record<string, T>> {
+		const data: Record<string, T> = await storage.get(this.storageKey) || {}
 		return data
 	}
 }
 
-export const dataSource = new DataSource()
+export const dataSource = new DataSource<TFAProps>(DATA_SOURCE)
+export const recoveryCodeDataSource = new DataSource<string[]>(RECOVERY_CODE)
 
 
 export const copyTextToClipboard = (text: string) => {

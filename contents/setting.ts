@@ -42,7 +42,6 @@ class Authenticator {
 
   async init() {
     const url = await this.getQRcodeValue()
-    console.log('url: ', url);
     if (!url) return
     this.params = Authenticator.parseOTPAuthURL(url)
     const { secret, type } = this.params

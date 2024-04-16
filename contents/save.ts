@@ -1,7 +1,7 @@
 
 import type { PlasmoCSConfig } from "plasmo"
 import jsQR from 'jsqr'
-import { dataSource, type TFAProps, authenticator } from '../util'
+import { recoveryCodeDataSource, type TFAProps, authenticator } from '../util'
 
 
 export const config: PlasmoCSConfig = {
@@ -29,10 +29,14 @@ class Authenticator {
     const button = document.createElement("span")
     button.setAttribute('class', "btn")
     button.innerText = "github-2fa"
-    button.title = "Save recovery codes to github-2fa."
+    button.title = "Save recovery codes"
     button.addEventListener('click', () => {
       const items = document.querySelectorAll('.two-factor-recovery-code')
       const data = ([...items] as HTMLLIElement[]).map(item => item.innerText)
+      const userNameElement: HTMLSpanElement = document.querySelector('.Truncate-text')
+      if (!userNameElement) return
+      const username = userNameElement.innerText.trim()
+      recoveryCodeDataSource.set(username, data)
     })
     container.appendChild(button)
   }
