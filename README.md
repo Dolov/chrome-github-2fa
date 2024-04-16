@@ -8,5 +8,5 @@ Say goodbye to the hassle of 2FA verification by integrating our solution seamle
 
 ![img](./screenshots/WX20240416-111958@2x.png)
 
-### Save recovery codes in cloud
-![img](./screenshots/WX20240416-100522@2x.png)
+<!-- ### Save recovery codes in cloud
+![img](./screenshots/WX20240416-100522@2x.png) -->
