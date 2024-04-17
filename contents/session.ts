@@ -1,6 +1,6 @@
 
 import type { PlasmoCSConfig } from "plasmo"
-import { dataSource, type TFAProps, authenticator } from '../util'
+import { dataSource, type DataProps, authenticator } from '../util'
 
 
 export const config: PlasmoCSConfig = {
@@ -22,7 +22,7 @@ class Authenticator {
 		this.renderAccountButton(data)
 	}
 
-	renderAccountButton(data: Record<string, TFAProps>) {
+	renderAccountButton(data: Record<string, DataProps>) {
 		const input: HTMLInputElement = document.querySelector('#app_totp')
 		const verifyButton = document.querySelector('.btn-primary')
 		if (!input) return

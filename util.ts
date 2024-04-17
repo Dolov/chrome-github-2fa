@@ -3,49 +3,64 @@ import { Storage } from "@plasmohq/storage"
 import { authenticator } from 'otplib'
 
 
+export const authenticatorOptions = {
+	step: 30,
+	digits: 6,
+}
+
 // 配置身份验证器
-authenticator.options = {
-  step: 30,
-  digits: 6,
-};
+authenticator.options = authenticatorOptions
 
 export {
 	authenticator
 }
 
 const DATA_SOURCE = "DATA_SOURCE"
-const RECOVERY_CODE = "RECOVERY_CODE"
 
 export const storage = new Storage()
 
-export interface TFAProps {
+export interface DataProps {
 	type: string,
 	issuer: string,
 	secret: string,
 	account: string,
+	recoveryCodes?: { value: string, copyed: boolean }[]
 }
 
-class DataSource<T> {
+class DataSource {
 	storageKey: string
 	constructor(key: string) {
 		this.storageKey = key
 	}
 
-	async set(key, params) {
+	async set(type: DataProps["type"], params: DataProps) {
 		const data = await storage.get(this.storageKey) || {}
-		data[key] = params
+		data[type] = params
 		await storage.set(this.storageKey, data)
 		return data
 	}
 
-	async get(): Promise<Record<string, T>> {
-		const data: Record<string, T> = await storage.get(this.storageKey) || {}
+	async get(): Promise<Record<string, DataProps>> {
+		const data: Record<string, DataProps> = await storage.get(this.storageKey) || {}
 		return data
+	}
+
+	async setRecoveryCodes(account, codes) {
+		const data = await this.get()
+		const type = Object.keys(data).find(type => data[type].account === account)
+		data[type] = {
+			...data[type],
+			recoveryCodes: codes
+		}
+	  return await this.set(type, data[type])
+	}
+
+	async save(data) {
+		return await storage.set(this.storageKey, data)
 	}
 }
 
-export const dataSource = new DataSource<TFAProps>(DATA_SOURCE)
-export const recoveryCodeDataSource = new DataSource<{ value: string, copyed: boolean }[]>(RECOVERY_CODE)
+export const dataSource = new DataSource(DATA_SOURCE)
 
 
 export const copyTextToClipboard = (text: string) => {
