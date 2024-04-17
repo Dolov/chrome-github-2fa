@@ -19,10 +19,10 @@ class Authenticator {
 
 	async init() {
 		const data = await dataSource.get()
-		this.renderDataSource(data)
+		this.renderAccountButton(data)
 	}
 
-	renderDataSource(data: Record<string, TFAProps>) {
+	renderAccountButton(data: Record<string, TFAProps>) {
 		const input: HTMLInputElement = document.querySelector('#app_totp')
 		const verifyButton = document.querySelector('.btn-primary')
 		if (!input) return
@@ -33,38 +33,37 @@ class Authenticator {
 		}
 		keys.forEach(key => {
 			const params = data[key]
-			const { secret, account } = params
 			const button = document.createElement('span')
 			button.style.width = "100%"
-			const token = authenticator.generate(secret)
-			button.innerHTML = `${account} ${token}`
-			verifyButton.parentNode.insertBefore(button, verifyButton)
-			this.refreshToken(button, token, params)
 			button.setAttribute('class', 'btn')
-			button.setAttribute('token', token)
+			
+			verifyButton.parentNode.insertBefore(button, verifyButton)
+			this.refresh2FACode(button, params)
 			button.addEventListener('click', () => {
 				const token = button.getAttribute('token')
 				input.value = token
 			})
 			if (keys.length === 1) {
+				const token = button.getAttribute('token')
 				input.value = token
 			}
 		})
 	}
 
-	refreshToken(button, token, params) {
+	render2FACode(button: HTMLButtonElement, params) {
 		const { account, secret } = params
-    const timer = setInterval(() => {
-      const timeRemaining = authenticator.timeRemaining()
-			button.innerHTML = `${account} ${token} (${timeRemaining}s)`
-      if (timeRemaining === 1) {
-        clearInterval(timer)
-				const token = authenticator.generate(secret)
-				button.setAttribute('token', token)
-				this.refreshToken(button, token, params)
-      }
-    }, 1000)
-  }
+		const token = authenticator.generate(secret)
+		const timeRemaining = authenticator.timeRemaining()
+		button.setAttribute('token', token)
+		button.innerHTML = `${account} ${token} (${timeRemaining}s)`
+	}
+
+	refresh2FACode(button, params) {
+		this.render2FACode(button, params)
+		setInterval(() => {
+			this.render2FACode(button, params)
+		}, 1000)
+	}
 }
 
 const auth = new Authenticator()

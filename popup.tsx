@@ -4,7 +4,7 @@ import { dataSource, recoveryCodeDataSource } from './util'
 
 
 function IndexPopup() {
-  const [recoveryCodes = {}, setRecoveryCodes] = useState<Record<string, string[]>>()
+  const [recoveryCodes = {}, setRecoveryCodes] = useState<Record<string, { value: string, copyed: boolean }[]>>()
 
   React.useEffect(() => {
     recoveryCodeDataSource.get().then(res => {
@@ -20,8 +20,9 @@ function IndexPopup() {
           <div key={name}>
             <h5>{name}</h5>
             {codes.map(item => {
+              const { value, copyed } = item
               return (
-                <div key={item}>{item}</div>
+                <div key={value}>{value}</div>
               )
             })}
           </div>

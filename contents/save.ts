@@ -32,7 +32,11 @@ class Authenticator {
     button.title = "Save recovery codes"
     button.addEventListener('click', () => {
       const items = document.querySelectorAll('.two-factor-recovery-code')
-      const data = ([...items] as HTMLLIElement[]).map(item => item.innerText)
+      const data = ([...items] as HTMLLIElement[]).map(item => item.innerText).map(item => {
+        return {
+          value: item,
+        }
+      })
       const userNameElement: HTMLSpanElement = document.querySelector('.Truncate-text')
       if (!userNameElement) return
       const username = userNameElement.innerText.trim()

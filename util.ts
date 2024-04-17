@@ -45,7 +45,7 @@ class DataSource<T> {
 }
 
 export const dataSource = new DataSource<TFAProps>(DATA_SOURCE)
-export const recoveryCodeDataSource = new DataSource<string[]>(RECOVERY_CODE)
+export const recoveryCodeDataSource = new DataSource<{ value: string, copyed: boolean }[]>(RECOVERY_CODE)
 
 
 export const copyTextToClipboard = (text: string) => {
@@ -62,13 +62,28 @@ export const copyTextToClipboard = (text: string) => {
 	textArea.select();
 
 	try {
-			// 尝试执行复制操作
-			const successful = document.execCommand('copy');
-			const msg = successful ? '已复制到剪贴板' : '复制失败';
-			console.log(msg);
+		// 尝试执行复制操作
+		const successful = document.execCommand('copy');
+		const msg = successful ? '已复制到剪贴板' : '复制失败';
+		console.log(msg);
 	} catch (err) {
-			console.error('无法复制文本', err);
+		console.error('无法复制文本', err);
 	}
 	// 移除文本框元素
 	document.body.removeChild(textArea);
+}
+
+/** 同步谷歌时间 */
+export const syncTimeWithGoogle = async () => {
+	const res = await fetch('https://www.google.com/generate_204')
+	const serverDate = res.headers.get('date')
+	const serverTime = new Date(serverDate).getTime();
+	const clientTime = new Date().getTime();
+	const offset = Math.round((serverTime - clientTime) / 1000);
+
+	return {
+		offset,
+		clientTime,
+		serverTime,
+	}
 }

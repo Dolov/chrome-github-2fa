@@ -5,6 +5,7 @@ import { dataSource, authenticator, copyTextToClipboard } from '../util'
 
 export const config: PlasmoCSConfig = {
   matches: [
+    // "https://github.com/settings/auth/recovery-codes?",
     "https://github.com/settings/security?type=app",
     "https://github.com/settings/two_factor_authentication/setup/intro",
   ],
@@ -31,25 +32,23 @@ class Authenticator {
     };
   }
 
-  params: ReturnType<typeof Authenticator.parseOTPAuthURL>
-  button: HTMLSpanElement
-  codeInput: HTMLInputElement
+  tFAInput: HTMLInputElement
   qrcodeImage: HTMLImageElement
 
   constructor() {
+    this.tFAInput = document.querySelector('input[name=otp]')
+    if (!this.tFAInput) return
     this.init()
   }
 
   async init() {
     const url = await this.getQRcodeValue()
     if (!url) return
-    this.params = Authenticator.parseOTPAuthURL(url)
-    const { secret, type } = this.params
-    const token = authenticator.generate(secret)
-    if (!token) return
-    dataSource.set(type, this.params)
-    this.renderButton(token)
-    this.refreshToken(token)
+    const params = Authenticator.parseOTPAuthURL(url)
+    const { type } = params
+    dataSource.set(type, params)
+    const button = this.render2FAButton()
+    this.refresh2FACode(button, params)
   }
 
   /** 获取页面二维码像素数据 */
@@ -97,47 +96,44 @@ class Authenticator {
     return res.data
   }
 
-  /** 在页面插入按钮，展示对应的 2fa 码 */
-  renderButton(token) {
-    const input: HTMLInputElement = document.querySelector('input[name=otp]')
-    if (!input) return
-    this.codeInput = input
-    this.button = document.createElement('span')
-    this.button.title = "chrome plugin github-2fa"
-    this.button.setAttribute('class', 'btn')
-    this.button.style.marginLeft = '16px'
-    this.button.innerText = token
-    input.parentNode.appendChild(this.button)
+  autoFocus() {
     if (
       location.href.includes("github.com/settings/security?type=app#two-factor-summary") ||
       location.href.includes("github.com/settings/two_factor_authentication/setup/intro")
     ) {
-      input.focus()
-      this.setPlaceholder(`Input ${token}`)
+      this.tFAInput.focus()
     }
-    this.button.addEventListener('click', e => {
+  }
+
+  render2FAButton() {
+    const button = document.createElement('span')
+    button.title = "chrome plugin github-2fa"
+    button.setAttribute('class', 'btn')
+    button.style.marginLeft = '16px'
+    this.tFAInput.parentNode.appendChild(button)
+    button.addEventListener('click', e => {
+      const token = button.getAttribute('token')
       copyTextToClipboard(token)
-      this.setPlaceholder(`Input or Paste ${token}`)
-      input.focus()
+      this.tFAInput.focus()
     })
+    return button
   }
 
-  setPlaceholder(placeholder) {
-    this.codeInput.placeholder = placeholder
+  render2FACode(button, params) {
+    const { secret } = params
+    const token = authenticator.generate(secret)
+    const timeRemaining = authenticator.timeRemaining()
+    button.innerText = `${token} (${timeRemaining}s)`
+    button.setAttribute('token', token)
+    this.tFAInput.placeholder = `Input ${token}`
   }
 
-  refreshToken(token) {
-    const timer = setInterval(() => {
-      const timeRemaining = authenticator.timeRemaining()
-      this.button.innerText = `${token} (${timeRemaining}s)`
-      if (timeRemaining === 1) {
-        clearInterval(timer)
-        const token = authenticator.generate(this.params.secret)
-        this.refreshToken(token)
-        this.setPlaceholder(`Input ${token}`)
-      }
-    }, 1000)
-  }
+  refresh2FACode(button, params) {
+		this.render2FACode(button, params)
+		setInterval(() => {
+			this.render2FACode(button, params)
+		}, 1000)
+	}
 }
 
 const auth = new Authenticator()
