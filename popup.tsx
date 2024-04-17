@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import { IconGithubLogo, IconCopy } from '@douyinfe/semi-icons';
 import { Tag, RadioGroup, Radio, Progress, Empty, Typography } from '@douyinfe/semi-ui';
 import { IllustrationConstruction } from '@douyinfe/semi-illustrations';
-import { dataSource, type DataProps, authenticator, authenticatorOptions } from './util'
+import { dataSource, type DataProps, authenticator, authenticatorOptions, copyTextToClipboard } from './util'
 import i18n from './i18n'
 
 const { Title } = Typography;
@@ -26,6 +26,7 @@ function IndexPopup() {
   }
 
   const handleCopy = (type, item) => {
+    copyTextToClipboard(item.value)
     const data = store[type]
     const codes = data.recoveryCodes.map(itemc => {
       if (itemc.value === item.value) {
