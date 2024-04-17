@@ -34,25 +34,27 @@ class DataSource {
 	}
 
 	async set(type: DataProps["type"], params: DataProps) {
-		const data = await storage.get(this.storageKey) || {}
-		data[type] = params
-		await storage.set(this.storageKey, data)
-		return data
+		const store = await storage.get(this.storageKey) || {}
+		const data = store[type]
+		store[type] = {
+			...data,
+			...params,
+		}
+		return await storage.set(this.storageKey, store)
 	}
 
 	async get(): Promise<Record<string, DataProps>> {
-		const data: Record<string, DataProps> = await storage.get(this.storageKey) || {}
-		return data
+		return await storage.get(this.storageKey) || {}
 	}
 
 	async setRecoveryCodes(account, codes) {
-		const data = await this.get()
-		const type = Object.keys(data).find(type => data[type].account === account)
-		data[type] = {
-			...data[type],
+		const store = await this.get()
+		const type = Object.keys(store).find(type => store[type].account === account)
+		store[type] = {
+			...store[type],
 			recoveryCodes: codes
 		}
-	  return await this.set(type, data[type])
+	  return await this.set(type, store[type])
 	}
 
 	async save(data) {
@@ -61,7 +63,6 @@ class DataSource {
 }
 
 export const dataSource = new DataSource(DATA_SOURCE)
-
 
 export const copyTextToClipboard = (text: string) => {
 	// 创建一个文本输入框元素

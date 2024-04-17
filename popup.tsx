@@ -70,8 +70,7 @@ function IndexPopup() {
                   size="small"
                   type='light'
                   shape='circle'
-                  color="var(--semi-color-primary)"
-                  style={{ maxWidth: 160 }}
+                  style={{ maxWidth: 160, color: tfaVisible && "var(--semi-color-primary)" }}
                   prefixIcon={<IconGithubLogo />}
                 >
                   {account}
