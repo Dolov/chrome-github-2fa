@@ -3,25 +3,38 @@ import { dataSource, type DataProps } from '../util'
 
 export const config: PlasmoCSConfig = {
   matches: [
+    // 从这个路径进入 recovery 页面不会触发插入 js 操作，所以把这个也匹配上
+    "https://github.com/sessions/two-factor/app",
+    // 刷新进入
     "https://github.com/sessions/two-factor/recovery",
   ],
   all_frames: true
 }
 
 class Authenticator {
-
   data: Record<string, DataProps>
   input: HTMLInputElement
   submitButton: HTMLButtonElement
   constructor() {
     this.input = document.querySelector('#recovery_code')
-    this.submitButton = document.querySelector('button[type=submit]')
-    this.init()
+    if (this.input) {
+      this.init()
+    } else {
+      const link = document.querySelector('a[data-test-selector=recovery-code-link]')
+      link.addEventListener('click', e => {
+        setTimeout(() => {
+          this.input = document.querySelector('#recovery_code')
+          if (!this.input) return
+          this.init()
+        }, 1000)
+      })
+    }
   }
 
   async init() {
     this.data = await dataSource.get()
     if (!this.data) return
+    this.submitButton = document.querySelector('button[type=submit]')
     this.renderRecoveryCodes()
     this.addSubmitListener()
   }
