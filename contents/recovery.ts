@@ -19,16 +19,17 @@ class Authenticator {
     this.input = document.querySelector('#recovery_code')
     if (this.input) {
       this.init()
-    } else {
-      const link = document.querySelector('a[data-test-selector=recovery-code-link]')
-      link.addEventListener('click', e => {
-        setTimeout(() => {
-          this.input = document.querySelector('#recovery_code')
-          if (!this.input) return
-          this.init()
-        }, 1000)
-      })
+      return
     }
+    const link = document.querySelector('a[data-test-selector=recovery-code-link]')
+    link.addEventListener('click', e => {
+      const timer = setInterval(() => {
+        this.input = document.querySelector('#recovery_code')
+        if (!this.input) return
+        window.clearInterval(timer)
+        this.init()
+      }, 2000)
+    })
   }
 
   async init() {
@@ -47,7 +48,7 @@ class Authenticator {
       if (!recoveryCodes.length) return
       const div = document.createElement('div')
       const one = types.length === 1
-      const prefix = one ? "": `<h4>${account}</h4>`
+      const prefix = one ? "" : `<h4>${account}</h4>`
       div.innerHTML = prefix + recoveryCodes.reduce((html, item) => {
         const { copyed, value } = item
         if (copyed) return html
