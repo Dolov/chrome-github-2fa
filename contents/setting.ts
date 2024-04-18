@@ -81,7 +81,6 @@ class Authenticator {
   }
 
   addSaveEventListener() {
-    if (!this.params) return
     if (!location.href.includes('https://github.com/settings/security?type=app')) return
     this.saveButton.addEventListener('click', () => {
       const { type } = this.params
