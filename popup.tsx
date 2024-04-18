@@ -137,7 +137,11 @@ const NoRecoveryCodes = props => {
     <Empty
       title={i18n("nodata")}
       image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
-      description={i18n("noRecoveryCodes")}
+      description={
+        <a style={{ textDecoration: "underline" }} href="https://github.com/settings/security?type=app#two-factor-summary">
+          {i18n("noRecoveryCodes")}
+        </a>
+      }
     />
   )
 }
@@ -148,6 +152,7 @@ const WarningBanner = props => {
   const restCodes = data.filter(item => !item.copyed)
 
   if (restCodes.length > 3) return null
+  if (!restCodes.length) return null
   return (
     <Banner
       style={{ marginBottom: 8 }}

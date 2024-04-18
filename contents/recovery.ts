@@ -47,6 +47,7 @@ class Authenticator {
       const { account, recoveryCodes = [] } = data[type]
       if (!recoveryCodes.length) return
       const div = document.createElement('div')
+      div.style.marginTop = "8px"
       const one = types.length === 1
       const prefix = one ? "" : `<h4>${account}</h4>`
       div.innerHTML = prefix + recoveryCodes.reduce((html, item) => {

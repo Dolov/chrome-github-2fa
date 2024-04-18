@@ -32,23 +32,75 @@ class Authenticator {
     };
   }
 
+  params: ReturnType<typeof Authenticator.parseOTPAuthURL>
   tFAInput: HTMLInputElement
+  saveButton: HTMLButtonElement
   qrcodeImage: HTMLImageElement
 
   constructor() {
     this.tFAInput = document.querySelector('input[name=otp]')
     if (!this.tFAInput) return
+    this.saveButton = document.querySelector('button[data-target*=two-factor-configure-otp-factor]')
     this.init()
+    if (this.saveButton) {
+      this.addSaveEventListener()
+    } else {
+      this.addRecoveryCodesListener()
+    }
+  }
+
+  addRecoveryCodesListener() {
+    const targetElement = document.querySelector("ul[data-target*=two-factor-setup-recovery-codes]");
+    if (!targetElement) return
+    if (!location.href.includes("https://github.com/settings/two_factor_authentication/setup/intro")) return
+    let saveable = false
+    const observer = new MutationObserver((mutationsList, observer) => {
+      // 遍历所有发生的变动
+      for (let mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+          saveable = true
+        }
+      }
+      if (saveable) {
+        observer.disconnect()
+        const lis = targetElement.querySelectorAll('li')
+        const recoveryCodes = [...lis].map(item => {
+          return {
+            value: item.innerText,
+            copyed: false
+          }
+        })
+        const { type } = this.params
+        dataSource.set(type, {
+          ...this.params,
+          recoveryCodes,
+        })
+      }
+    });
+    observer.observe(targetElement, { childList: true, subtree: true });
+  }
+
+  addSaveEventListener() {
+    if (!this.params) return
+    if (!location.href.includes('https://github.com/settings/security?type=app')) return
+    this.saveButton.addEventListener('click', () => {
+      const { type } = this.params
+      dataSource.set(type, this.params)
+    })
   }
 
   async init() {
     const url = await this.getQRcodeValue()
     if (!url) return
-    const params = Authenticator.parseOTPAuthURL(url)
-    const { type } = params
-    dataSource.set(type, params)
+    this.params = Authenticator.parseOTPAuthURL(url)
+    const { type } = this.params
+    const store = await dataSource.get()
+    // 不存在则立即保存到插件，如果存在则需要区别是否使用了
+    if (!store[type]) {
+      dataSource.set(type, this.params)
+    }
     const button = this.render2FAButton()
-    this.refresh2FACode(button, params)
+    this.refresh2FACode(button, this.params)
   }
 
   /** 获取页面二维码像素数据 */
@@ -129,14 +181,13 @@ class Authenticator {
   }
 
   refresh2FACode(button, params) {
-		this.render2FACode(button, params)
-		setInterval(() => {
-			this.render2FACode(button, params)
-		}, 1000)
-	}
+    this.render2FACode(button, params)
+    setInterval(() => {
+      this.render2FACode(button, params)
+    }, 1000)
+  }
 }
 
 const auth = new Authenticator()
-
 
 export { Authenticator }
