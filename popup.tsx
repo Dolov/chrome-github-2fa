@@ -54,6 +54,7 @@ function IndexPopup() {
     <div style={{ width: 300, padding: 6, margin: 0 }}>
       {Object.keys(store).map(type => {
         const { recoveryCodes = [], account, secret } = store[type]
+        if (!secret) return null
         const value = groupState[type] || "2FA"
         const tfaVisible = value === "2FA"
         const recoveryVisible = value === "Recovery"

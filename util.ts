@@ -50,6 +50,7 @@ class DataSource {
 	async setRecoveryCodes(account, codes) {
 		const store = await this.get()
 		const type = Object.keys(store).find(type => store[type].account === account)
+		if (!type) return
 		store[type] = {
 			...store[type],
 			recoveryCodes: codes
