@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { IconGithubLogo, IconCopy } from '@douyinfe/semi-icons';
-import { Tag, RadioGroup, Radio, Progress, Empty, Typography } from '@douyinfe/semi-ui';
+import { Tag, RadioGroup, Radio, Progress, Empty, Typography, Banner } from '@douyinfe/semi-ui';
 import { IllustrationConstruction } from '@douyinfe/semi-illustrations';
 import { dataSource, type DataProps, authenticator, authenticatorOptions, copyTextToClipboard } from './util'
 import i18n from './i18n'
@@ -38,7 +38,7 @@ function IndexPopup() {
       return itemc
     })
 
-    const newStore = {
+    const newStore: Record<string, DataProps> = {
       ...store,
       [type]: {
         ...store[type],
@@ -54,10 +54,10 @@ function IndexPopup() {
     <div style={{ width: 300, padding: 6, margin: 0 }}>
       {Object.keys(store).map(type => {
         const { recoveryCodes = [], account, secret } = store[type]
-        const noCodes = recoveryCodes.length === 0
         const value = groupState[type] || "2FA"
         const tfaVisible = value === "2FA"
         const recoveryVisible = value === "Recovery"
+
         return (
           <div key={type}>
             <RadioGroup
@@ -77,7 +77,7 @@ function IndexPopup() {
                   {account}
                 </Tag>
               </Radio>
-              <Radio value="Recovery">Recovery</Radio>
+              <Radio value="Recovery">{i18n("recoveryCodes")}</Radio>
             </RadioGroup>
             <div style={{ margin: "12px 0 8px 0" }}>
               {tfaVisible && (
@@ -85,34 +85,9 @@ function IndexPopup() {
               )}
               {recoveryVisible && (
                 <div>
-                  {noCodes && (
-                    <Empty
-                      title={i18n.nodata}
-                      image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
-                      description={i18n.noRecoveryCodes}
-                    />
-                  )}
-                  {recoveryCodes.map((item, index) => {
-                    const { value, copyed } = item
-                    const style = {
-                      width: 120,
-                      margin: "0 8px 8px 0",
-                      textDecoration: copyed ? "line-through" : "auto",
-                    }
-                    return (
-                      <Tag
-                        key={value}
-                        size='large'
-                        type='light'
-                        shape='circle'
-                        color={`${copyed ? "grey" : "light-blue"}`}
-                        style={style}
-                        suffixIcon={!copyed && <IconCopy onClick={() => handleCopy(type, item)} style={{ cursor: "pointer" }} />}
-                      >
-                        {value}
-                      </Tag>
-                    )
-                  })}
+                  <WarningBanner data={recoveryCodes} />
+                  <NoRecoveryCodes data={recoveryCodes} />
+                  <RecoveryCodes data={recoveryCodes} type={type} handleCopy={handleCopy} />
                 </div>
               )}
             </div>
@@ -123,9 +98,71 @@ function IndexPopup() {
   )
 }
 
+
+const RecoveryCodes = props => {
+  const { type, data, handleCopy } = props
+  return (
+    <div>
+      {data.map((item, index) => {
+        const { value, copyed } = item
+        const style = {
+          width: 120,
+          margin: "0 8px 8px 0",
+          textDecoration: copyed ? "line-through" : "auto",
+        }
+        return (
+          <Tag
+            key={value}
+            size='large'
+            type='light'
+            shape='circle'
+            color={`${copyed ? "grey" : "light-blue"}`}
+            style={style}
+            suffixIcon={!copyed && <IconCopy onClick={() => handleCopy(type, item)} style={{ cursor: "pointer" }} />}
+          >
+            {value}
+          </Tag>
+        )
+      })}
+    </div>
+  )
+}
+
+
+const NoRecoveryCodes = props => {
+  const { data } = props
+
+  if (data.length > 0) return null
+  return (
+    <Empty
+      title={i18n("nodata")}
+      image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
+      description={i18n("noRecoveryCodes")}
+    />
+  )
+}
+
+const WarningBanner = props => {
+  const { data } = props
+  /** 尚未使用的找回码 */
+  const restCodes = data.filter(item => !item.copyed)
+
+  if (restCodes.length > 3) return null
+  return (
+    <Banner
+      style={{ marginBottom: 8 }}
+      type="warning"
+      description={
+        <a style={{ textDecoration: "underline" }} href="https://github.com/settings/security?type=app#two-factor-summary">
+          {i18n("recoveryCodesLessTip", restCodes.length)}
+        </a>
+      }
+    />
+  )
+}
+
 const TFACode = props => {
   const { secret } = props
-
   const [percent, setPercent] = React.useState(0)
 
   React.useEffect(() => {
@@ -134,19 +171,20 @@ const TFACode = props => {
       const percent = Math.ceil((timeUsed / authenticatorOptions.step) * 100)
       setPercent(percent)
     }, 1000)
+
     return () => {
       clearInterval(timer)
     }
   }, [])
 
-  const type = percent > 85 ? "warning": "primary"
+  const type = percent > 85 ? "warning" : "primary"
   return (
     <div>
       <Progress size="small" stroke={`var(--semi-color-${type})`} percent={percent} />
       <Title copyable style={{ padding: "8px 0" }}>
         <span>{authenticator.generate(secret)}</span>
       </Title>
-    </div> 
+    </div>
   )
 }
 
