@@ -182,7 +182,7 @@ const TFACode = props => {
     <div>
       <Progress size="small" stroke={`var(--semi-color-${type})`} percent={percent} />
       <Title copyable style={{ padding: "8px 0" }}>
-        <span>{authenticator.generate(secret)}</span>
+        {authenticator.generate(secret)}
       </Title>
     </div>
   )
