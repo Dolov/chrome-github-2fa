@@ -20,9 +20,9 @@ const DATA_SOURCE = "DATA_SOURCE"
 export const storage = new Storage()
 
 export interface DataProps {
-	type: string,
-	issuer: string,
-	secret: string,
+	type?: string,
+	issuer?: string,
+	secret?: string,
 	account: string,
 	recoveryCodes?: { value: string, copyed: boolean }[]
 }
@@ -33,11 +33,10 @@ class DataSource {
 		this.storageKey = key
 	}
 
-	async set(type: DataProps["type"], params: DataProps) {
+	async set(account: DataProps["account"], params: DataProps) {
 		const store = await storage.get(this.storageKey) || {}
-		const data = store[type]
-		store[type] = {
-			...data,
+		store[account] = {
+			...store[account],
 			...params,
 		}
 		return await storage.set(this.storageKey, store)
@@ -49,13 +48,12 @@ class DataSource {
 
 	async setRecoveryCodes(account, codes) {
 		const store = await this.get()
-		const type = Object.keys(store).find(type => store[type].account === account)
-		if (!type) return
-		store[type] = {
-			...store[type],
+		store[account] = {
+			...store[account],
+			account,
 			recoveryCodes: codes
 		}
-	  return await this.set(type, store[type])
+	  return await this.set(account, store[account])
 	}
 
 	async save(data) {

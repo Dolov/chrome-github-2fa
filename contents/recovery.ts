@@ -12,7 +12,7 @@ export const config: PlasmoCSConfig = {
 }
 
 class Authenticator {
-  data: Record<string, DataProps>
+  store: Record<string, DataProps>
   input: HTMLInputElement
   submitButton: HTMLButtonElement
   constructor() {
@@ -33,22 +33,22 @@ class Authenticator {
   }
 
   async init() {
-    this.data = await dataSource.get()
-    if (!this.data) return
+    this.store = await dataSource.get()
+    if (!this.store) return
     this.submitButton = document.querySelector('button[type=submit]')
     this.renderRecoveryCodes()
     this.addSubmitListener()
   }
 
   renderRecoveryCodes() {
-    const data = this.data
-    const types = Object.keys(data)
-    types.forEach(type => {
-      const { account, recoveryCodes = [] } = data[type]
+    const store = this.store
+    const accounts = Object.keys(store)
+    accounts.forEach(account => {
+      const { recoveryCodes = [] } = store[account]
       if (!recoveryCodes.length) return
       const div = document.createElement('div')
       div.style.marginTop = "8px"
-      const one = types.length === 1
+      const one = accounts.length === 1
       const prefix = one ? "" : `<h4>${account}</h4>`
       div.innerHTML = prefix + recoveryCodes.reduce((html, item) => {
         const { copyed, value } = item
@@ -90,13 +90,13 @@ class Authenticator {
     this.submitButton.addEventListener('click', e => {
       const value = this.input.value
       if (!value) return
-      const types = Object.keys(this.data)
+      const types = Object.keys(this.store)
       types.forEach(type => {
-        const codes = this.data[type].recoveryCodes || []
+        const codes = this.store[type].recoveryCodes || []
         const code = codes.find(item => item.value === value)
         code.copyed = true
       })
-      dataSource.save(this.data)
+      dataSource.save(this.store)
     })
   }
 }

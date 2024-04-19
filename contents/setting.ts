@@ -70,8 +70,8 @@ class Authenticator {
             copyed: false
           }
         })
-        const { type } = this.params
-        dataSource.set(type, {
+        const { account } = this.params
+        dataSource.set(account, {
           ...this.params,
           recoveryCodes,
         })
@@ -84,20 +84,20 @@ class Authenticator {
     if (!location.href.includes('https://github.com/settings/security?type=app')) return
     this.saveButton.addEventListener('click', () => {
       if (!this.params) return
-      const { type } = this.params
-      dataSource.set(type, this.params)
+      const { account } = this.params
+      dataSource.set(account, this.params)
     })
   }
 
   async init() {
     const url = await this.getQRcodeValue()
     if (!url) return
-    this.params = Authenticator.parseOTPAuthURL(url)
-    const { type } = this.params
+    this.params = Authenticator.parseOTPAuthURL(url);
+    const { account } = this.params
     const store = await dataSource.get()
     // 不存在则立即保存到插件，如果存在则需要区别是否使用了
-    if (!store[type]) {
-      dataSource.set(type, this.params)
+    if (!store[account] || !store[account].secret) {
+      dataSource.set(account, this.params)
     }
     const button = this.render2FAButton()
     this.refresh2FACode(button, this.params)

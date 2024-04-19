@@ -4,13 +4,19 @@ const store = {
     "recoveryCodes": "Recovery Codes",
     "nodata": "No Data",
     "noRecoveryCodes": "Recovery codes have not been saved to github-2fa yet, please save the data in a timely manner to avoid forgetting.",
-    "recoveryCodesLessTip": "Recovery codes only {param0} left, please generate it promptly."
+    "recoveryCodesLessTip": "Recovery codes only {param0} left, please generate it promptly.",
+    "startTip": "Start managing your Github 2FA Code.",
+    "goToGen": "Go to generate",
+    "noSectet": "Secret has not been generated yet.",
   },
   "cn": {
     "recoveryCodes": "重置码",
     "nodata": "暂无数据",
     "noRecoveryCodes": "尚未保存 Recovery codes 至 github-2fa, 及时保存数据，避免遗忘。",
-    "recoveryCodesLessTip": "重置码仅余 {param0} 个，请及时生成。"
+    "recoveryCodesLessTip": "重置码仅余 {param0} 个，请及时生成。",
+    "startTip": "开始管理你的 Github 2FA Code。",
+    "goToGen": "前往生成",
+    "noSectet": "尚未生成 secret，",
   }
 }
 
