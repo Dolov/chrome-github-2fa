@@ -1,7 +1,7 @@
 {
   "name": "github-2fa",
   "displayName": "Github 2FA",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Easy GitHub 2FA authentication.",
   "author": "shisongyan. <songyan_shi@163.com>",
   "scripts": {
