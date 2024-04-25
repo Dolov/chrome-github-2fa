@@ -1,5 +1,5 @@
 {
-  "name": "github-2fa",
+  "name": "github2fa",
   "displayName": "Github 2FA",
   "version": "1.1.0",
   "description": "Easy GitHub 2FA authentication.",
