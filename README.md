@@ -1,5 +1,7 @@
 # Easy GitHub 2FA authentication
 
+[Document](https://github.com/Dolov/chrome-github-2fa/issues/1)
+
 Say goodbye to the hassle of 2FA verification by integrating our solution seamlessly into your workflow. Enjoy enhanced security and convenience as you navigate GitHub with ease.
 
 ### Feature
@@ -7,8 +9,6 @@ Say goodbye to the hassle of 2FA verification by integrating our solution seamle
 - Can save Recovery Codes to the plugin, record their usage status to prevent loss.
 - Can store data for multiple GitHub accounts.
 - Features an exquisite and minimalist UI, simple operation, and ensures data security.
-
-[Document](https://github.com/Dolov/chrome-github-2fa/issues/1)
 
 ### Set 2FA Code
 ![img](./screenshots/WX20240416-093157@2x.png)
