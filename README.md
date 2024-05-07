@@ -1,5 +1,12 @@
 # Easy GitHub 2FA authentication
 
+![GitHub commit activity](https://img.shields.io/github/commit-activity/y/dolov/chrome-github-2fa)
+![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/lhmckpbbfjnkbgekjinmhpcaojjiifcd)
+![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/lhmckpbbfjnkbgekjinmhpcaojjiifcd)
+![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/lhmckpbbfjnkbgekjinmhpcaojjiifcd)
+
+
+[chrome web store](https://chromewebstore.google.com/detail/github-2fa/lhmckpbbfjnkbgekjinmhpcaojjiifcd)
 [Document](https://github.com/Dolov/chrome-github-2fa/issues/1)
 
 Say goodbye to the hassle of 2FA verification by integrating our solution seamlessly into your workflow. Enjoy enhanced security and convenience as you navigate GitHub with ease.

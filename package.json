@@ -1,7 +1,7 @@
 {
   "name": "github2fa",
   "displayName": "Github 2FA",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Easy GitHub 2FA authentication.",
   "author": "shisongyan. <songyan_shi@163.com>",
   "scripts": {
@@ -32,8 +32,15 @@
   "manifest": {
     "permissions": [
       "tabs",
+      "identity",
       "contextMenus"
     ],
+    "oauth2": {
+      "client_id": "781103833148-4244ebs19kcrp9ehi5kntvrf07ddg7dj.apps.googleusercontent.com",
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email"
+      ]
+    },
     "host_permissions": [
       "https://*/*"
     ]

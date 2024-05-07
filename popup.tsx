@@ -55,11 +55,39 @@ function IndexPopup() {
     dataSource.save(newStore)
   }
 
+  const handleLogin = () => {
+    // 向用户请求身份验证并获取访问令牌
+    chrome.identity.getAuthToken({
+      interactive: true,
+    }, function (token) {
+      if (chrome.runtime.lastError) {
+        // 如果发生错误，则输出错误消息
+        console.error(chrome.runtime.lastError.message);
+        return;
+      }
+
+      // 使用获取的访问令牌进行某些操作，比如发送到服务器进行验证
+      // 在此处您可以调用任何需要身份验证的API
+      console.log("Access Token:", token);
+
+      // 在完成操作后，记得释放访问令牌
+      chrome.identity.removeCachedAuthToken({ token: token }, function () {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError.message);
+          return;
+        }
+        console.log("Token removed");
+      });
+    });
+
+  }
+
   if (!store) return null
 
   if (!Object.keys(store).length) {
     return (
       <div style={containerStyle}>
+        
         <Empty
           title={i18n("nodata")}
           image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
@@ -88,6 +116,9 @@ function IndexPopup() {
 
         return (
           <div key={account}>
+            {account === "Dolov" && (
+              <button onClick={handleLogin}>login</button>
+            )}
             <RadioGroup
               type='button'
               value={value}

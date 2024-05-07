@@ -2,12 +2,12 @@
 /** 定义右键菜单列表 */
 const menuList: (chrome.contextMenus.CreateProperties & { action?(tab: chrome.tabs.Tab): void })[] = [
   {
-    id: "issue",
-    title: "Issues & 需求",
+    id: "document",
+    title: "使用文档",
     contexts: ["action"],
     action() {
       chrome.tabs.create({
-        url: "https://github.com/Dolov/chrome-github-2fa/issues"
+        url: "https://github.com/Dolov/chrome-github-2fa/issues/1"
       })
     }
   },
@@ -22,12 +22,12 @@ const menuList: (chrome.contextMenus.CreateProperties & { action?(tab: chrome.ta
     }
   },
   {
-    id: "document",
-    title: "使用文档",
+    id: "issue",
+    title: "功能申请 && 问题反馈",
     contexts: ["action"],
     action() {
       chrome.tabs.create({
-        url: "https://github.com/Dolov/chrome-github-2fa/issues/1"
+        url: "https://github.com/Dolov/chrome-github-2fa/issues"
       })
     }
   },
