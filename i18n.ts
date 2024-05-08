@@ -8,6 +8,11 @@ const store = {
     "startTip": "Start managing your Github 2FA Code.",
     "goToGen": "Go to generate",
     "noSectet": "Secret has not been generated yet.",
+    "savedSuccessfully": "Saved successfully.",
+    "createGmailDraft": "Create Gmail draft storage data",
+    "withGoogle": "Continue with Google",
+    "declare": "All data is stored locally on the browser, no intermediate service, please use it with relax.",
+    "saveToGmailDeclare": "If you are concerned about data loss, you can log in with Google authorization and store the data in your Gmail email draft."
   },
   "cn": {
     "recoveryCodes": "重置码",
@@ -17,6 +22,11 @@ const store = {
     "startTip": "开始管理你的 Github 2FA Code。",
     "goToGen": "前往生成",
     "noSectet": "尚未生成 secret，",
+    "savedSuccessfully": "保存成功。",
+    "createGmailDraft": "创建 Gmail 草稿存储数据",
+    "withGoogle": "使用 Google 进行登录",
+    "declare": "郑重声明：所有数据都在浏览器本地，不会收集存储用户数据，且无中间服务，可放心使用！",
+    "saveToGmailDeclare": "如若担心数据遗失，可进行 Google 授权登录，存储数据至 Gmail 邮箱草稿中。"
   }
 }
 

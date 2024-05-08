@@ -30,15 +30,18 @@
     "typescript": "5.3.3"
   },
   "manifest": {
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAob+v5tcoQpz22SjD0lYWXGBHs1/91sn7BBRsJjWo1fhOipudYLpH7YwqNQ6jo8j5cIwkRCXY1aPaAdCeVvq2UXqL1OhxLOgdzY+rUU1YHVaaHBKp9VscnQh8MF1s1qPOoXJLncTrtbcrJ6R5HAcIQ10gHIRzrO/50BlhKT/Vggk9T1Fsk3Lfj9CtHfVj7cmlfHkdzi/IvZXr22voYmW0cpvPzLHmTtOv8CzsrmkGvhiRvEqray7tb9IH5DxAtK5D2nebP8O/IOASQpxV+W9xygVSctMZVUT5JG29xAOuM/6DdcJclM56km68jTVtwXKe1qHGyx7bBJPJF1TiSUGFgQIDAQAB",
     "permissions": [
       "tabs",
       "identity",
+      "identity.email",
       "contextMenus"
     ],
     "oauth2": {
       "client_id": "781103833148-4244ebs19kcrp9ehi5kntvrf07ddg7dj.apps.googleusercontent.com",
       "scopes": [
-        "https://www.googleapis.com/auth/userinfo.email"
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/gmail.compose"
       ]
     },
     "host_permissions": [

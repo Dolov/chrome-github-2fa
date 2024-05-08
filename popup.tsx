@@ -1,16 +1,22 @@
 import React, { useState } from "react"
 import { IconLink } from '@douyinfe/semi-icons';
+import { useStorage } from "@plasmohq/storage/hook"
 import { IconGithubLogo, IconCopy } from '@douyinfe/semi-icons';
-import { Tag, RadioGroup, Radio, Progress, Empty, Typography, Banner } from '@douyinfe/semi-ui';
+import { Tag, RadioGroup, Radio, Progress, Empty, Typography, Banner, Avatar, Button, Toast } from '@douyinfe/semi-ui';
 import { IllustrationConstruction } from '@douyinfe/semi-illustrations';
-import { dataSource, type DataProps, authenticator, authenticatorOptions, copyTextToClipboard } from './util'
-import i18n from './i18n'
+import {
+  dataSource, type DataProps, authenticator, authenticatorOptions, copyTextToClipboard,
+  SECURITY_URL, gmailIconUrl, createGmailDraftMessage,
+} from '~/util'
+import i18n from '~/i18n'
+import './style.css'
 
 const { Title, Text } = Typography;
 
 const containerStyle: React.CSSProperties = {
   width: 300, padding: 6, margin: 0
 }
+
 
 function IndexPopup() {
   const [store, setStore] = useState<Record<string, DataProps>>(null)
@@ -55,39 +61,11 @@ function IndexPopup() {
     dataSource.save(newStore)
   }
 
-  const handleLogin = () => {
-    // 向用户请求身份验证并获取访问令牌
-    chrome.identity.getAuthToken({
-      interactive: true,
-    }, function (token) {
-      if (chrome.runtime.lastError) {
-        // 如果发生错误，则输出错误消息
-        console.error(chrome.runtime.lastError.message);
-        return;
-      }
-
-      // 使用获取的访问令牌进行某些操作，比如发送到服务器进行验证
-      // 在此处您可以调用任何需要身份验证的API
-      console.log("Access Token:", token);
-
-      // 在完成操作后，记得释放访问令牌
-      chrome.identity.removeCachedAuthToken({ token: token }, function () {
-        if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          return;
-        }
-        console.log("Token removed");
-      });
-    });
-
-  }
-
   if (!store) return null
 
   if (!Object.keys(store).length) {
     return (
       <div style={containerStyle}>
-        
         <Empty
           title={i18n("nodata")}
           image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
@@ -95,7 +73,7 @@ function IndexPopup() {
             <Text
               underline
               icon={<IconLink />}
-              link={{ href: "https://github.com/settings/security?type=app#two-factor-summary" }}
+              link={{ href: SECURITY_URL }}
             >
               {i18n("startTip")}
             </Text>
@@ -107,18 +85,16 @@ function IndexPopup() {
 
   return (
     <div style={containerStyle}>
+      <Disclaimers />
       {/* <button onClick={() => dataSource.save({})}>clear</button> */}
       {Object.keys(store).map(account => {
         const { recoveryCodes = [], secret } = store[account]
         const value = groupState[account] || "2FA"
         const tfaVisible = value === "2FA"
+        const saveVisible = value === "Save"
         const recoveryVisible = value === "Recovery"
-
         return (
           <div key={account}>
-            {account === "Dolov" && (
-              <button onClick={handleLogin}>login</button>
-            )}
             <RadioGroup
               type='button'
               value={value}
@@ -137,6 +113,17 @@ function IndexPopup() {
                 </Tag>
               </Radio>
               <Radio value="Recovery">{i18n("recoveryCodes")}</Radio>
+              <Radio value="Save">
+                {/* <IconSave /> */}
+                <Avatar
+                  alt='User'
+                  size="extra-extra-small"
+                  style={{ margin: "0 4px 0 2px", display: "inline-flex" }}
+                  border={{ motion: saveVisible }}
+                  contentMotion={saveVisible}
+                  src={gmailIconUrl}
+                />
+              </Radio>
             </RadioGroup>
             <div style={{ margin: "12px 0 8px 0" }}>
               {tfaVisible && (
@@ -149,11 +136,90 @@ function IndexPopup() {
                   <RecoveryCodes data={recoveryCodes} account={account} handleCopy={handleCopy} />
                 </div>
               )}
+              {saveVisible && (
+                <ContinueWithGoogle account={account} />
+              )}
             </div>
           </div>
         )
       })}
     </div>
+  )
+}
+
+const ContinueWithGoogle = props => {
+  const { account } = props
+  const [loading, setLoading] = React.useState(false)
+  const [userInfo, setUserInfo] = React.useState<{ email?: string }>({})
+
+  React.useEffect(() => {
+    getProfileUserInfo()
+  }, [])
+
+  const getProfileUserInfo = () => {
+    chrome.identity.getProfileUserInfo(userInfo => {
+      setUserInfo(userInfo)
+    })
+  }
+
+  const withGoogle = async () => {
+    chrome.identity.getAuthToken({ interactive: true }, (token) => {
+      getProfileUserInfo()
+    })
+  }
+
+  const createGmailDraft = () => {
+    setLoading(true)
+    chrome.identity.getAuthToken({ interactive: true }, async (token) => {
+      getProfileUserInfo()
+      const data = await dataSource.get()
+      const { issuer, secret, recoveryCodes = [] } = data[account]
+      const codes = recoveryCodes.map(item => item.value).join("、")
+      createGmailDraftMessage(token, {
+        subject: `Github 2FA (${account}) - ${new Date().toLocaleDateString()}`,
+        content: `
+          2FA issuer: ${issuer} \n
+          2FA secret: ${secret} \n
+          Github Recrecovery Codes: ${codes}
+        `,
+      }).then(res => {
+        if (res.error) {
+          Toast.error(res.error.message)
+          return
+        }
+        Toast.success(i18n("savedSuccessfully"))
+      }).catch(err => {
+        Toast.error(err)
+      }).finally(() => {
+        setLoading(false)
+      })
+    })
+  }
+
+  const { email } = userInfo || {}
+
+  if (email) {
+    return (
+      <div>
+        <Button loading={loading} onClick={createGmailDraft}>{i18n("createGmailDraft")}</Button>
+        <Text
+          underline
+          link={{ href: "https://mail.google.com/" }}
+          style={{ marginTop: 16, display: "flex", alignItems: "center" }}
+        >
+          {email}
+        </Text>
+      </div>
+    )
+  }
+
+  return (
+    <Button>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <img style={{ width: 20, height: 20, marginRight: 8 }} src={gmailIconUrl} alt="" />
+        <span onClick={withGoogle}>{i18n("withGoogle")}</span>
+      </div>
+    </Button>
   )
 }
 
@@ -197,7 +263,7 @@ const NoRecoveryCodes = props => {
       title={i18n("nodata")}
       image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
       description={
-        <a style={{ textDecoration: "underline" }} href="https://github.com/settings/security?type=app#two-factor-summary">
+        <a style={{ textDecoration: "underline" }} href={SECURITY_URL}>
           {i18n("noRecoveryCodes")}
         </a>
       }
@@ -219,7 +285,7 @@ const WarningBanner = props => {
       description={
         <a
           style={{ textDecoration: "underline" }}
-          href="https://github.com/settings/security?type=app#two-factor-summary"
+          href={SECURITY_URL}
         >
           {i18n("recoveryCodesLessTip", restCodes.length)}
         </a>
@@ -252,7 +318,7 @@ const TFACode = props => {
         <Text
           underline
           icon={<IconLink />}
-          link={{ href: "https://github.com/settings/security?type=app#two-factor-summary" }}
+          link={{ href: SECURITY_URL }}
         >
           {i18n("goToGen")}
         </Text>
@@ -268,6 +334,31 @@ const TFACode = props => {
         {authenticator.generate(secret)}
       </Title>
     </div>
+  )
+}
+
+const Disclaimers = props => {
+
+  const [visible, setVisible] = useStorage("disclaimerVisible", true)
+
+  const onClose = () => {
+    setVisible(false)
+  }
+
+  if (!visible) return null
+
+  return (
+    <Banner
+      style={{ fontWeight: 900, marginBottom: 4 }}
+      type="warning"
+      onClose={onClose}
+      description={
+        <div>
+          <div>{i18n("declare")}</div>
+          <div style={{ marginTop: 8 }}>{i18n("saveToGmailDeclare")}</div>
+        </div>
+      }
+    />
   )
 }
 
