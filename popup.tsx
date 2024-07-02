@@ -1,24 +1,41 @@
+import { IconCopy, IconGithubLogo, IconLink } from "@douyinfe/semi-icons"
+import { IllustrationConstruction } from "@douyinfe/semi-illustrations"
+import {
+  Banner,
+  Empty,
+  Progress,
+  Radio,
+  RadioGroup,
+  Tag,
+  Typography
+} from "@douyinfe/semi-ui"
 import React, { useState } from "react"
-import { IconLink } from '@douyinfe/semi-icons';
-import { IconGithubLogo, IconCopy } from '@douyinfe/semi-icons';
-import { Tag, RadioGroup, Radio, Progress, Empty, Typography, Banner } from '@douyinfe/semi-ui';
-import { IllustrationConstruction } from '@douyinfe/semi-illustrations';
-import { dataSource, type DataProps, authenticator, authenticatorOptions, copyTextToClipboard } from './util'
-import i18n from './i18n'
 
-const { Title, Text } = Typography;
+import i18n from "./i18n"
+import {
+  authenticator,
+  authenticatorOptions,
+  copyTextToClipboard,
+  dataSource,
+  type DataProps
+} from "./util"
+
+const { Title, Text } = Typography
 
 const containerStyle: React.CSSProperties = {
-  width: 300, padding: 6, margin: 0
+  width: 300,
+  padding: 6,
+  margin: 0
 }
 
 function IndexPopup() {
   const [store, setStore] = useState<Record<string, DataProps>>(null)
+  console.log("store: ", store)
   const [groupState, setGroupState] = React.useState({})
 
   React.useEffect(() => {
     // 获取初始化数据
-    dataSource.get().then(res => {
+    dataSource.get().then((res) => {
       setStore(res || {})
     })
   }, [])
@@ -33,7 +50,7 @@ function IndexPopup() {
   const handleCopy = (account, item) => {
     copyTextToClipboard(item.value)
     const params = store[account]
-    const codes = params.recoveryCodes.map(itemc => {
+    const codes = params.recoveryCodes.map((itemc) => {
       if (itemc.value === item.value) {
         return {
           ...itemc,
@@ -62,13 +79,16 @@ function IndexPopup() {
       <div style={containerStyle}>
         <Empty
           title={i18n("nodata")}
-          image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
+          image={
+            <IllustrationConstruction style={{ width: 150, height: 150 }} />
+          }
           description={
             <Text
               underline
               icon={<IconLink />}
-              link={{ href: "https://github.com/settings/security?type=app#two-factor-summary" }}
-            >
+              link={{
+                href: "https://github.com/settings/security?type=app#two-factor-summary"
+              }}>
               {i18n("startTip")}
             </Text>
           }
@@ -80,7 +100,7 @@ function IndexPopup() {
   return (
     <div style={containerStyle}>
       {/* <button onClick={() => dataSource.save({})}>clear</button> */}
-      {Object.keys(store).map(account => {
+      {Object.keys(store).map((account) => {
         const { recoveryCodes = [], secret } = store[account]
         const value = groupState[account] || "2FA"
         const tfaVisible = value === "2FA"
@@ -89,33 +109,36 @@ function IndexPopup() {
         return (
           <div key={account}>
             <RadioGroup
-              type='button'
+              type="button"
               value={value}
-              style={{ display: "flex", "alignItems": "center" }}
-              onChange={e => onRadioGroupChange(e, account)}
-            >
+              style={{ display: "flex", alignItems: "center" }}
+              onChange={(e) => onRadioGroupChange(e, account)}>
               <Radio value="2FA">
                 <Tag
                   size="small"
-                  type='light'
-                  shape='circle'
-                  style={{ maxWidth: 160, color: tfaVisible && "var(--semi-color-primary)" }}
-                  prefixIcon={<IconGithubLogo />}
-                >
+                  type="light"
+                  shape="circle"
+                  style={{
+                    maxWidth: 160,
+                    color: tfaVisible && "var(--semi-color-primary)"
+                  }}
+                  prefixIcon={<IconGithubLogo />}>
                   {account}
                 </Tag>
               </Radio>
               <Radio value="Recovery">{i18n("recoveryCodes")}</Radio>
             </RadioGroup>
             <div style={{ margin: "12px 0 8px 0" }}>
-              {tfaVisible && (
-                <TFACode secret={secret} />
-              )}
+              {tfaVisible && <TFACode secret={secret} />}
               {recoveryVisible && (
                 <div>
                   <WarningBanner data={recoveryCodes} />
                   <NoRecoveryCodes data={recoveryCodes} />
-                  <RecoveryCodes data={recoveryCodes} account={account} handleCopy={handleCopy} />
+                  <RecoveryCodes
+                    data={recoveryCodes}
+                    account={account}
+                    handleCopy={handleCopy}
+                  />
                 </div>
               )}
             </div>
@@ -126,8 +149,7 @@ function IndexPopup() {
   )
 }
 
-
-const RecoveryCodes = props => {
+const RecoveryCodes = (props) => {
   const { account, data, handleCopy } = props
   return (
     <div>
@@ -136,18 +158,24 @@ const RecoveryCodes = props => {
         const style = {
           width: 120,
           margin: "0 8px 8px 0",
-          textDecoration: copyed ? "line-through" : "auto",
+          textDecoration: copyed ? "line-through" : "auto"
         }
         return (
           <Tag
             key={value}
-            size='large'
-            type='light'
-            shape='circle'
+            size="large"
+            type="light"
+            shape="circle"
             color={`${copyed ? "grey" : "light-blue"}`}
             style={style}
-            suffixIcon={!copyed && <IconCopy onClick={() => handleCopy(account, item)} style={{ cursor: "pointer" }} />}
-          >
+            suffixIcon={
+              !copyed && (
+                <IconCopy
+                  onClick={() => handleCopy(account, item)}
+                  style={{ cursor: "pointer" }}
+                />
+              )
+            }>
             {value}
           </Tag>
         )
@@ -156,8 +184,7 @@ const RecoveryCodes = props => {
   )
 }
 
-
-const NoRecoveryCodes = props => {
+const NoRecoveryCodes = (props) => {
   const { data } = props
 
   if (data.length > 0) return null
@@ -166,7 +193,9 @@ const NoRecoveryCodes = props => {
       title={i18n("nodata")}
       image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
       description={
-        <a style={{ textDecoration: "underline" }} href="https://github.com/settings/security?type=app#two-factor-summary">
+        <a
+          style={{ textDecoration: "underline" }}
+          href="https://github.com/settings/security?type=app#two-factor-summary">
           {i18n("noRecoveryCodes")}
         </a>
       }
@@ -174,10 +203,10 @@ const NoRecoveryCodes = props => {
   )
 }
 
-const WarningBanner = props => {
+const WarningBanner = (props) => {
   const { data } = props
   /** 尚未使用的找回码 */
-  const restCodes = data.filter(item => !item.copyed)
+  const restCodes = data.filter((item) => !item.copyed)
 
   if (restCodes.length > 3) return null
   if (!restCodes.length) return null
@@ -188,8 +217,7 @@ const WarningBanner = props => {
       description={
         <a
           style={{ textDecoration: "underline" }}
-          href="https://github.com/settings/security?type=app#two-factor-summary"
-        >
+          href="https://github.com/settings/security?type=app#two-factor-summary">
           {i18n("recoveryCodesLessTip", restCodes.length)}
         </a>
       }
@@ -197,7 +225,7 @@ const WarningBanner = props => {
   )
 }
 
-const TFACode = props => {
+const TFACode = (props) => {
   const { secret } = props
   const [percent, setPercent] = React.useState(0)
 
@@ -221,8 +249,9 @@ const TFACode = props => {
         <Text
           underline
           icon={<IconLink />}
-          link={{ href: "https://github.com/settings/security?type=app#two-factor-summary" }}
-        >
+          link={{
+            href: "https://github.com/settings/security?type=app#two-factor-summary"
+          }}>
           {i18n("goToGen")}
         </Text>
       </Text>
@@ -232,7 +261,11 @@ const TFACode = props => {
   const type = percent > 85 ? "warning" : "primary"
   return (
     <div>
-      <Progress size="small" stroke={`var(--semi-color-${type})`} percent={percent} />
+      <Progress
+        size="small"
+        stroke={`var(--semi-color-${type})`}
+        percent={percent}
+      />
       <Title copyable style={{ padding: "8px 0" }}>
         {authenticator.generate(secret)}
       </Title>
