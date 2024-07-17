@@ -17,6 +17,7 @@ import {
   authenticatorOptions,
   copyTextToClipboard,
   dataSource,
+  goSettingSecurity,
   type DataProps
 } from "./util"
 
@@ -30,7 +31,6 @@ const containerStyle: React.CSSProperties = {
 
 function IndexPopup() {
   const [store, setStore] = useState<Record<string, DataProps>>(null)
-  console.log("store: ", store)
   const [groupState, setGroupState] = React.useState({})
 
   React.useEffect(() => {
@@ -86,8 +86,9 @@ function IndexPopup() {
             <Text
               underline
               icon={<IconLink />}
+              onClick={goSettingSecurity}
               link={{
-                href: "https://github.com/settings/security?type=app#two-factor-summary"
+                href: "javascript:void(0)"
               }}>
               {i18n("startTip")}
             </Text>
@@ -188,14 +189,16 @@ const NoRecoveryCodes = (props) => {
   const { data } = props
 
   if (data.length > 0) return null
+
   return (
     <Empty
       title={i18n("nodata")}
       image={<IllustrationConstruction style={{ width: 150, height: 150 }} />}
       description={
         <a
+          onClick={goSettingSecurity}
           style={{ textDecoration: "underline" }}
-          href="https://github.com/settings/security?type=app#two-factor-summary">
+          href="javascript:void(0)">
           {i18n("noRecoveryCodes")}
         </a>
       }
@@ -249,8 +252,9 @@ const TFACode = (props) => {
         <Text
           underline
           icon={<IconLink />}
+          onClick={goSettingSecurity}
           link={{
-            href: "https://github.com/settings/security?type=app#two-factor-summary"
+            href: "javascript:void(0)"
           }}>
           {i18n("goToGen")}
         </Text>
