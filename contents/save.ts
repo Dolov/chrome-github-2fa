@@ -1,6 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import { dataSource } from "../util"
+import { dataSource, getUserName } from "../util"
 
 export const config: PlasmoCSConfig = {
   matches: [
@@ -31,7 +31,6 @@ class Authenticator {
     button.title = "Save recovery codes in github-2fa"
     button.addEventListener("click", () => {
       const items = document.querySelectorAll(".two-factor-recovery-code")
-      console.log("items: ", items)
       const data = ([...items] as HTMLLIElement[])
         .map((item) => item.innerText)
         .map((item) => {
@@ -39,14 +38,14 @@ class Authenticator {
             value: item
           }
         })
-      const userNameElement: HTMLSpanElement =
-        document.querySelector(".Truncate-text")
-      if (!userNameElement) return
-      const username = userNameElement.innerText.trim()
+
+      const username = getUserName()
+      if (!username) return
       dataSource.setRecoveryCodes(username, data)
 
       const oColor = button.style.color
       button.style.color = "green"
+      button.innerText = "Saved"
       setTimeout(() => {
         button.style.color = oColor
       }, 1000)
