@@ -17,6 +17,7 @@ const DATA_SOURCE = "DATA_SOURCE"
 export const storage = new Storage()
 
 export interface DataProps {
+  id: string
   type?: string
   issuer?: string
   secret?: string
@@ -32,6 +33,7 @@ class DataSource {
 
   async set(account: DataProps["account"], params: DataProps) {
     const store = (await storage.get(this.storageKey)) || {}
+    console.log("store: ", store)
     store[account] = {
       ...store[account],
       ...params
