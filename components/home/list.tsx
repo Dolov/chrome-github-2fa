@@ -1,49 +1,18 @@
 import clsx from "clsx"
 import React from "react"
 
-import { type DataProps } from "~/utils/constant"
-import {
-  DeviconAzure,
-  DeviconCloudflare,
-  DeviconDigitalocean,
-  DeviconGooglecloud,
-  DeviconLinkedin,
-  DeviconNpm,
-  LogosAws,
-  LogosBitbucket,
-  LogosDockerIcon,
-  LogosFacebook,
-  LogosGitlab,
-  LogosRedditIcon,
-  LogosTwitter,
-  MdiGithub,
-  SkillIconsDiscord,
-  SkillIconsGmailLight,
-  SkillIconsInstagram,
-  VscodeIconsFileTypeOutlook
-} from "~components/ui/icon"
-import { getOtp, getProcessColor, getTimeRemaining } from "~utils"
+import { useStorage } from "@plasmohq/storage/hook"
 
-const faviconMap: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
-  github: MdiGithub,
-  npm: DeviconNpm,
-  gitlab: LogosGitlab,
-  bitbucket: LogosBitbucket,
-  docker: LogosDockerIcon,
-  aws: LogosAws,
-  googlecloud: DeviconGooglecloud,
-  azure: DeviconAzure,
-  cloudflare: DeviconCloudflare,
-  digitalocean: DeviconDigitalocean,
-  twitter: LogosTwitter,
-  facebook: LogosFacebook,
-  instagram: SkillIconsInstagram,
-  linkedin: DeviconLinkedin,
-  discord: SkillIconsDiscord,
-  reddit: LogosRedditIcon,
-  gmail: SkillIconsGmailLight,
-  outlook: VscodeIconsFileTypeOutlook
-}
+import { type DataProps } from "~/utils/constant"
+import Favicon, { elegantImageMap, minimalIconMap } from "~components/favicons"
+import Opt from "~components/opt"
+import {
+  copyTextToClipboard,
+  getOtp,
+  getProcessColor,
+  getTimeRemaining
+} from "~utils"
+import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
 
 interface ListProps {
   data: DataProps[]
@@ -52,7 +21,7 @@ interface ListProps {
 const List: React.FC<ListProps> = (props) => {
   const { data } = props
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1 overflow-auto px-4">
       {data.map((item) => {
         const { id } = item
         return <ListItem key={id} data={item} />
@@ -95,28 +64,38 @@ const ListItem: React.FC<ListItemProps> = (props) => {
     setTimeRemaining(timeRemaining)
   }
 
-  const Favicon = faviconMap[vendor]
+  const handleCopy = () => {
+    copyTextToClipboard(opt)
+  }
+
   const color = getProcessColor(timeRemaining)
   return (
-    <div className="bg-base-200 py-4 mb-2 rounded-lg relative overflow-hidden">
+    <div
+      onClick={handleCopy}
+      className="bg-base-200 py-4 mb-4 rounded-lg relative overflow-hidden hover:shadow-lg">
       <progress
         max={30}
         value={timeRemaining}
         className={`progress ${color} w-full absolute top-[0px] h-[3px] bg-base-200`}
       />
-      <div className="px-4">
+      <div className="px-4 relative">
         <div className="flex justify-between items-center">
           <div className="font-medium text-lg">{issuer}</div>
-          <div>
-            <Favicon className="text-xl" />
-          </div>
+          <Favicon vendor={vendor} />
         </div>
         <div className="text-neutral/60 font-medium -translate-y-[2px]">
           {account}
         </div>
         <div className="mt-2 flex justify-between items-center">
-          <div className="font-bold text-2xl text-primary">{opt}</div>
-          <div className="text-neutral/60 font-medium">{nextOpt}</div>
+          <Opt className="font-bold text-2xl text-primary">{opt}</Opt>
+          <div>
+            <div className="text-neutral/60 text-[0.6rem] text-right">
+              下一个
+            </div>
+            <Opt small className="text-neutral/60 text-sm font-medium">
+              {nextOpt}
+            </Opt>
+          </div>
         </div>
       </div>
     </div>

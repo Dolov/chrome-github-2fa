@@ -19,7 +19,7 @@ const Container: React.FC<ContainerProps> = (props) => {
     return <Phone className={className}>{children}</Phone>
   }
   return (
-    <div className={clsx("w-[350px] h-[582px] px-4 bg-base-100 flex flex-col")}>
+    <div className={clsx("w-[350px] h-[600px] bg-base-100 flex flex-col")}>
       {children}
     </div>
   )

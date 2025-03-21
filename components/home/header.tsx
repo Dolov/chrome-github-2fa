@@ -3,7 +3,7 @@ import React from "react"
 
 const Header = () => {
   return (
-    <div className="h-16 flex justify-between items-center">
+    <div className="h-16 flex justify-between items-center px-4">
       <button className="btn btn-ghost btn-sm btn-circle">
         <Menu />
       </button>
