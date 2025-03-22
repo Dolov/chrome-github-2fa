@@ -6,6 +6,7 @@ import { useStorage } from "@plasmohq/storage/hook"
 import { type DataProps } from "~/utils/constant"
 import Favicon, { elegantImageMap, minimalIconMap } from "~components/favicons"
 import Opt from "~components/opt"
+import ContextMenu from "~components/ui/context-menu"
 import {
   copyTextToClipboard,
   getOtp,
@@ -13,6 +14,8 @@ import {
   getTimeRemaining
 } from "~utils"
 import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
+
+import ItemActions from "./item-actions"
 
 interface ListProps {}
 
@@ -98,6 +101,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
         value={timeRemaining}
         className={`progress ${color} w-full absolute top-[0px] h-[3px] bg-base-200`}
       />
+      <ItemActions visible={true} data={data} />
       <div className="px-4 relative">
         <div className="flex justify-between items-center">
           <div className="font-medium text-lg">{issuer}</div>
