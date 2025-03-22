@@ -18,22 +18,48 @@ interface ListProps {}
 
 const List: React.FC<ListProps> = (props) => {
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
+
+  const [item, setItem] = React.useState<DataProps>(null)
+
+  const handleCopy = (item) => {
+    copyTextToClipboard(item.opt)
+    setItem(item)
+  }
+
+  React.useEffect(() => {
+    if (item) {
+      setTimeout(() => {
+        setItem(null)
+      }, 1000)
+    }
+  }, [item])
+
   return (
     <div className="flex-1 overflow-auto px-4">
       {data.map((item) => {
         const { id } = item
-        return <ListItem key={id} data={item} />
+        return <ListItem key={id} data={item} handleCopy={handleCopy} />
       })}
+      {item && (
+        <div className="toast toast-center">
+          <div className="alert bg-neutral text-base-100 py-2">
+            <span>
+              {item.issuer}-{item.account} 已复制到剪贴板
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 interface ListItemProps {
   data: DataProps
+  handleCopy: (item: DataProps) => void
 }
 
 const ListItem: React.FC<ListItemProps> = (props) => {
-  const { data } = props
+  const { data, handleCopy } = props
   const { id, type, issuer, secret, account } = data
   const vendor = issuer.toLocaleLowerCase()
   const [opt, setOpt] = React.useState("")
@@ -62,14 +88,10 @@ const ListItem: React.FC<ListItemProps> = (props) => {
     setTimeRemaining(timeRemaining)
   }
 
-  const handleCopy = () => {
-    copyTextToClipboard(opt)
-  }
-
   const color = getProcessColor(timeRemaining)
   return (
     <div
-      onClick={handleCopy}
+      onClick={() => handleCopy(data)}
       className="bg-base-200 py-4 mb-4 rounded-lg relative overflow-hidden hover:shadow-lg">
       <progress
         max={30}
