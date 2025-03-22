@@ -14,12 +14,10 @@ import {
 } from "~utils"
 import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
 
-interface ListProps {
-  data: DataProps[]
-}
+interface ListProps {}
 
 const List: React.FC<ListProps> = (props) => {
-  const { data } = props
+  const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
   return (
     <div className="flex-1 overflow-auto px-4">
       {data.map((item) => {

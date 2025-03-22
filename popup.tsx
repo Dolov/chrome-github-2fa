@@ -12,7 +12,7 @@ const Home = () => {
   return (
     <Container>
       <Header />
-      <List data={mockData} />
+      <List />
       <Create />
     </Container>
   )
