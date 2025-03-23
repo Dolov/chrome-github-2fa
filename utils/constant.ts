@@ -4,7 +4,7 @@ export enum StorageKey {
 }
 
 export const DEFAULT_SETTINGS = {
-  theme: false,
+  theme: "light",
   containerType: "default",
   faviconType: "elegant" // minimal, elegant
 }
@@ -15,6 +15,7 @@ export interface DataProps {
   issuer: string
   secret: string
   account: string
+  pinned?: boolean
   remark?: string
   otpauthUrl?: string
   recoveryCodes?: { value: string; copyed: boolean }[]

@@ -18,6 +18,10 @@ export function parseOtpauthUrl(otpauthUrl) {
   }
 }
 
+export function generateOtpauthUrl({ type, account, secret, issuer }) {
+  return `otpauth://${type}/${account}?secret=${secret}&issuer=${issuer}`
+}
+
 const authenticatorOptions = {
   step: 30,
   digits: 6,

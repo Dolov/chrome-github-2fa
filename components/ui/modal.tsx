@@ -16,6 +16,7 @@ export interface ModalProps {
   okDisabled?: boolean
   qprogressLoading?: boolean
   okText?: string
+  closeButtonClassName?: string
   confirmButtonClassName?: string
   footerLeft?: React.ReactNode
   full?: boolean
@@ -48,6 +49,7 @@ const Modal: React.FC<ModalProps> = (props) => {
     okLoading,
     qprogressLoading,
     confirmButtonClassName,
+    closeButtonClassName,
     okText = "Confirm",
     keyboardEvents,
     shortcutKeySave,
@@ -114,7 +116,9 @@ const Modal: React.FC<ModalProps> = (props) => {
               {okText}
             </Button>
           )}
-          <button className="btn" onClick={handleClose}>
+          <button
+            className={classnames("btn", closeButtonClassName)}
+            onClick={handleClose}>
             Close
           </button>
         </div>
