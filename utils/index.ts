@@ -87,3 +87,23 @@ export const copyTextToClipboard = (text: string) => {
   // 移除文本框元素
   document.body.removeChild(textArea)
 }
+
+export const downloadBase64Image = (base64Data: string, fileName: string) => {
+  // 将 Base64 转换为 Blob
+  const byteCharacters = atob(base64Data.split(",")[1]) // 去掉 `data:image/png;base64,` 头部
+  const byteNumbers = new Uint8Array(byteCharacters.length)
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i)
+  }
+  const blob = new Blob([byteNumbers], { type: "image/png" })
+
+  // 创建 URL 并下载
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = fileName || "download.png" // 默认文件名
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}

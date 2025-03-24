@@ -37,6 +37,7 @@
   "manifest": {
     "permissions": [
       "tabs",
+      "activeTab",
       "contextMenus"
     ],
     "host_permissions": [

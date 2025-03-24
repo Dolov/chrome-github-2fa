@@ -1,3 +1,4 @@
+import clsx from "clsx"
 import React from "react"
 
 interface PhoneProps {
@@ -6,13 +7,15 @@ interface PhoneProps {
 }
 
 const Phone: React.FC<PhoneProps> = (props) => {
-  const { children } = props
+  const { children, className } = props
   return (
-    <div className="h-full flex flex-col">
+    <div className={clsx("flex flex-col", className)}>
       <div className="mockup-phone flex flex-col flex-1">
         <div className="camera"></div>
         <div className="display">
-          <div className="artboard artboard-demo phone-1">{children}</div>
+          <div className="artboard artboard-demo phone-1 items-stretch">
+            {children}
+          </div>
         </div>
       </div>
     </div>

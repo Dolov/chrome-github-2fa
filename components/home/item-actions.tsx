@@ -1,4 +1,12 @@
-import { Pencil, Pin, PinOff, QrCode, Share2, Trash2 } from "lucide-react"
+import {
+  KeyRound,
+  Pencil,
+  Pin,
+  PinOff,
+  QrCode,
+  Share2,
+  Trash2
+} from "lucide-react"
 import React, { Fragment } from "react"
 import { encodeData, QRDsj } from "react-qrbtf"
 
@@ -94,7 +102,10 @@ const ItemActions: React.FC<{
       />
       <Modal
         visible={qrVisible}
-        onClose={() => setQrVisible(false)}
+        onClose={() => {
+          onClose()
+          setQrVisible(false)
+        }}
         footer={null}>
         <div className="w-full h-full flex flex-col items-center">
           <QRDsj qrcode={encodeData({ text: url })} />
@@ -136,6 +147,10 @@ const ItemActions: React.FC<{
             className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
             <Pencil size={18} />
             <span className="text-xs font-normal">编辑</span>
+          </div>
+          <div className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
+            <KeyRound size={18} />
+            <span className="text-xs font-normal">恢复码</span>
           </div>
           <div
             onClick={handleDelete}

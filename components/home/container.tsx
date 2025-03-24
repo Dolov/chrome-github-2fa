@@ -7,19 +7,22 @@ import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
 
 import Phone from "./phone"
 
-interface ContainerProps {
+export interface ContainerProps {
+  type?: typeof DEFAULT_SETTINGS.containerType
   children: React.ReactNode
   className?: string
 }
 
 const Container: React.FC<ContainerProps> = (props) => {
-  const { children, className } = props
-  const [settings] = useStorage(StorageKey.SETTINGS, DEFAULT_SETTINGS)
-  if (settings.containerType === "phone") {
-    return <Phone className={className}>{children}</Phone>
+  const { children, type } = props
+  if (type === "phone") {
+    return <Phone className="relative w-[350px] h-[600px]">{children}</Phone>
   }
   return (
-    <div className={clsx("w-[350px] h-[600px] bg-base-100 flex flex-col")}>
+    <div
+      className={clsx(
+        "relative w-[350px] h-[600px] bg-base-100 flex flex-col"
+      )}>
       {children}
     </div>
   )

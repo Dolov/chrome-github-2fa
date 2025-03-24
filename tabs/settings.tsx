@@ -3,6 +3,7 @@ import React from "react"
 
 import { useStorage } from "@plasmohq/storage/hook"
 
+import Main from "~components/home"
 import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
 import { useThemeChange } from "~utils/hooks"
 
@@ -45,17 +46,17 @@ const themes = [
 
 document.title = `${chrome.i18n.getMessage("extensionName")}`
 
-const ThemeList = (props) => {
-  const { value, onChange } = props
+const ThemeList = () => {
+  const [theme, setTheme] = useThemeChange()
 
   return (
     <div className="rounded-box grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       {themes.map((item) => {
-        const checked = value === item
+        const checked = theme === item
         return (
           <div
             key={item}
-            onClick={() => onChange(item)}
+            onClick={() => setTheme(item)}
             className={classnames("overflow-hidden rounded-lg item-border", {
               "item-border-active": checked
             })}>
@@ -101,22 +102,69 @@ const ThemeList = (props) => {
   )
 }
 
+const ContainerList = () => {
+  const [settings, setSettings] = useStorage(
+    StorageKey.SETTINGS,
+    DEFAULT_SETTINGS
+  )
+
+  const { containerType } = settings
+
+  return (
+    <div className=" flex gap-6">
+      <div className="flex flex-col items-center gap-4">
+        <input
+          type="radio"
+          name="container-type"
+          className="radio"
+          checked={containerType === "default"}
+          onChange={() => {
+            setSettings({
+              ...settings,
+              containerType: "default"
+            })
+          }}
+        />
+        <Main containerType="default" />
+      </div>
+      <div className="flex flex-col items-center gap-4">
+        <input
+          type="radio"
+          name="container-type"
+          className="radio"
+          checked={containerType === "phone"}
+          onChange={() => {
+            setSettings({
+              ...settings,
+              containerType: "phone"
+            })
+          }}
+        />
+        <Main containerType="phone" />
+      </div>
+    </div>
+  )
+}
+
 export interface SettingProps {}
 
 const Setting: React.FC<SettingProps> = (props) => {
   const {} = props
 
-  const [theme, setTheme] = useThemeChange()
-
   return (
     <div className="overflow-auto h-full">
-      <div className="collapse bg-base-200">
-        <input type="radio" name="my-accordion-1" defaultChecked />
-        <div className="collapse-title text-xl font-medium">
-          {chrome.i18n.getMessage("settings_theme")}
-        </div>
+      <div className="collapse bg-base-200 mb-4">
+        <input type="radio" name="container" defaultChecked />
+        <div className="collapse-title text-xl font-medium">布局模式</div>
         <div className="collapse-content">
-          <ThemeList value={theme} onChange={setTheme} />
+          <ContainerList />
+        </div>
+      </div>
+      <div className="collapse bg-base-200 mb-4">
+        <input type="radio" name="theme" />
+        <div className="collapse-title text-xl font-medium">主题</div>
+        <div className="collapse-content">
+          <ThemeList />
         </div>
       </div>
     </div>

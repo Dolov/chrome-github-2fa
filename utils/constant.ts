@@ -1,12 +1,24 @@
+export const contentBaseZindex = 10000000
+
 export enum StorageKey {
   DATA = "data",
   SETTINGS = "settings"
 }
 
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: {
+  theme: string
+  containerType: "phone" | "default"
+  faviconType: string
+} = {
   theme: "light",
-  containerType: "default",
+  containerType: "phone", // phone, default
   faviconType: "elegant" // minimal, elegant
+}
+
+export enum ActionKey {
+  AUTOSCAN = "AUTOSCAN",
+  MANUAL_SCREENSHOT = "MANUAL_SCREENSHOT",
+  CAPTURE_SCREENSHOT = "CAPTURE_SCREENSHOT"
 }
 
 export interface DataProps {
