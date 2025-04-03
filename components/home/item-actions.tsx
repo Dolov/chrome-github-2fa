@@ -16,7 +16,7 @@ import Modal from "~components/ui/modal"
 import { generateOtpauthUrl } from "~utils"
 import { StorageKey, type DataProps } from "~utils/constant"
 
-import OptForm from "./opt-form"
+import OptForm from "./otp-form"
 
 const ItemActions: React.FC<{
   visible: boolean

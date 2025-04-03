@@ -6,6 +6,7 @@ import Header from "./header"
 import List from "./list"
 
 interface HomeProps {
+  source: "settings" | "popup"
   containerType: ContainerProps["type"]
 }
 

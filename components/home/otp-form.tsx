@@ -12,7 +12,7 @@ const defaultForm = {
   remark: ""
 }
 
-const OptForm: React.FC<{
+const OtpForm: React.FC<{
   visible: boolean
   onClose: () => void
   editItem?: any
@@ -124,4 +124,4 @@ const OptForm: React.FC<{
   )
 }
 
-export default OptForm
+export default OtpForm

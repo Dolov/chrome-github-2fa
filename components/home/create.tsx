@@ -14,7 +14,7 @@ import {
   type DataProps
 } from "~utils/constant"
 
-import OptForm from "./opt-form"
+import OptForm from "./otp-form"
 
 interface CreateProps {
   type?: typeof DEFAULT_SETTINGS.containerType

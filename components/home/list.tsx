@@ -6,7 +6,7 @@ import { useStorage } from "@plasmohq/storage/hook"
 
 import { type DataProps } from "~/utils/constant"
 import Favicon, { elegantImageMap, minimalIconMap } from "~components/favicons"
-import Opt from "~components/opt"
+import OtpText from "~components/otp-text"
 import message from "~components/ui/message"
 import {
   copyTextToClipboard,
@@ -41,8 +41,8 @@ const ListItem: React.FC<ListItemProps> = (props) => {
   const { data } = props
   const { id, type, pinned, issuer, secret, account } = data
   const vendor = issuer.toLocaleLowerCase()
-  const [opt, setOpt] = React.useState("")
-  const [nextOpt, setNextOpt] = React.useState("")
+  const [otp, setOtp] = React.useState("")
+  const [nextOtp, setNextOtp] = React.useState("")
   const [actionVisible, setActionVisible] = React.useState(false)
   const [timeRemaining, setTimeRemaining] = React.useState<number>(null)
   const timer = React.useRef(null)
@@ -59,17 +59,17 @@ const ListItem: React.FC<ListItemProps> = (props) => {
   }, [])
 
   const calcOTP = () => {
-    const opt = getOtp(secret)
-    const nextOpt = getOtp(secret, true)
+    const otp = getOtp(secret)
+    const nextOtp = getOtp(secret, true)
     const timeRemaining = getTimeRemaining()
 
-    setOpt(opt)
-    setNextOpt(nextOpt)
+    setOtp(otp)
+    setNextOtp(nextOtp)
     setTimeRemaining(timeRemaining)
   }
 
   const handleCopy = () => {
-    copyTextToClipboard(opt)
+    copyTextToClipboard(otp)
     message.success(`复制成功`)
   }
 
@@ -111,12 +111,12 @@ const ListItem: React.FC<ListItemProps> = (props) => {
           {account}
         </div>
         <div className="mt-2 flex justify-between items-center">
-          <Opt className="font-bold text-2xl text-primary">{opt}</Opt>
+          <OtpText className="font-bold text-2xl text-primary">{otp}</OtpText>
           <div>
             <div className="base-content text-[0.6rem] text-right">下一个</div>
-            <Opt small className="text-secondary text-sm font-medium">
-              {nextOpt}
-            </Opt>
+            <OtpText small className="text-secondary text-sm font-medium">
+              {nextOtp}
+            </OtpText>
           </div>
         </div>
       </div>

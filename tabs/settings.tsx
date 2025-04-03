@@ -125,7 +125,7 @@ const ContainerList = () => {
             })
           }}
         />
-        <Main containerType="default" />
+        <Main source="settings" containerType="default" />
       </div>
       <div className="flex flex-col items-center gap-4">
         <input
@@ -140,7 +140,7 @@ const ContainerList = () => {
             })
           }}
         />
-        <Main containerType="phone" />
+        <Main source="settings" containerType="phone" />
       </div>
     </div>
   )

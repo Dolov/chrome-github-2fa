@@ -1,13 +1,13 @@
 import clsx from "clsx"
 import React from "react"
 
-interface OptProps {
+interface OtpTextProps {
   children: string
   small?: boolean
   className?: string
 }
 
-const Opt: React.FC<OptProps> = (props) => {
+const OtpText: React.FC<OtpTextProps> = (props) => {
   const { children, className, small } = props
   const first = children.slice(0, 3)
   const last = children.slice(3)
@@ -25,4 +25,4 @@ const Opt: React.FC<OptProps> = (props) => {
   )
 }
 
-export default Opt
+export default OtpText
