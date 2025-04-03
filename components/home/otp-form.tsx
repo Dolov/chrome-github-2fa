@@ -1,9 +1,12 @@
+import clsx from "clsx"
 import React from "react"
 
 import { useStorage } from "@plasmohq/storage/hook"
 
 import Modal from "~components/ui/modal"
 import { StorageKey, type DataProps } from "~utils/constant"
+
+import { GlobalContext } from "./context"
 
 const defaultForm = {
   issuer: "",
@@ -18,6 +21,7 @@ const OtpForm: React.FC<{
   editItem?: any
 }> = (props) => {
   const { visible, onClose, editItem } = props
+  const { containerType } = React.useContext(GlobalContext)
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const title = "输入账户详细信息"
   const [form, setForm] = React.useState({
@@ -59,7 +63,12 @@ const OtpForm: React.FC<{
   }
 
   return (
-    <Modal onOk={handleOk} title={title} visible={visible} onClose={onClose}>
+    <Modal
+      onOk={handleOk}
+      title={title}
+      visible={visible}
+      onClose={onClose}
+      width={containerType === "phone" ? "88%" : "94%"}>
       <div className="flex flex-col gap-3 p-1">
         <label className="input input-bordered flex items-center gap-2">
           平台

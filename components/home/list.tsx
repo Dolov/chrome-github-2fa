@@ -101,7 +101,10 @@ const ListItem: React.FC<ListItemProps> = (props) => {
             <span className="base-content font-medium text-lg">{issuer}</span>
             <button
               className="btn btn-circle btn-ghost btn-sm ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              onClick={() => setActionVisible(true)}>
+              onClick={(e) => {
+                e.stopPropagation()
+                setActionVisible(true)
+              }}>
               <FileCog size={16} />
             </button>
           </div>

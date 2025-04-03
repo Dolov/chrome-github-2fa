@@ -4,8 +4,8 @@ import React from "react"
 
 import { useStorage } from "@plasmohq/storage/hook"
 
+import Button from "~components/ui/button"
 import message from "~components/ui/message"
-import Modal from "~components/ui/modal"
 import { parseOtpauthUrl } from "~utils"
 import {
   ActionKey,
@@ -14,17 +14,17 @@ import {
   type DataProps
 } from "~utils/constant"
 
+import { GlobalContext } from "./context"
 import OptForm from "./otp-form"
 
-interface CreateProps {
-  type?: typeof DEFAULT_SETTINGS.containerType
-}
+interface CreateProps {}
 
 const Create: React.FC<CreateProps> = (props) => {
-  const { type } = props
+  const { containerType } = React.useContext(GlobalContext)
   const [active, setActive] = React.useState(false)
   const [visible, setVisible] = React.useState(false)
   const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const [scaning, setScaning] = React.useState(false)
 
   const toggle = () => {
     setActive(!active)
@@ -33,6 +33,17 @@ const Create: React.FC<CreateProps> = (props) => {
   const handleClose = () => {
     setActive(false)
     setVisible(false)
+  }
+
+  const isExist = (parsedData) => {
+    return dataList.some((item) => {
+      return (
+        item.type === parsedData.type &&
+        item.issuer === parsedData.issuer &&
+        item.secret === parsedData.secret &&
+        item.account === parsedData.account
+      )
+    })
   }
 
   const handleQRScan = () => {
@@ -53,6 +64,10 @@ const Create: React.FC<CreateProps> = (props) => {
     const { success, data, error } = result
     if (success) {
       const parsedData = parseOtpauthUrl(data)
+      if (isExist(parsedData)) {
+        message.warning("该 QR code 已存在。")
+        return
+      }
       const nextData = [
         ...dataList,
         {
@@ -60,9 +75,13 @@ const Create: React.FC<CreateProps> = (props) => {
           ...parsedData
         }
       ]
-      setActive(false)
-      setDataList(nextData)
-      message.success("添加成功")
+      setScaning(true)
+      setTimeout(() => {
+        setActive(false)
+        setScaning(false)
+        setDataList(nextData)
+        message.success("添加成功")
+      }, 1000)
       return
     }
     // 无法自动识别二维码，开启手动截图模式
@@ -78,8 +97,8 @@ const Create: React.FC<CreateProps> = (props) => {
   return (
     <div
       className={clsx("absolute flex flex-col items-center z-10", {
-        "bottom-8 right-8": type === "phone",
-        "bottom-4 right-4": type !== "phone"
+        "bottom-8 right-8": containerType === "phone",
+        "bottom-4 right-4": containerType !== "phone"
       })}>
       {/* 额外的按钮，只有在激活时才显示 */}
       <div
@@ -99,11 +118,13 @@ const Create: React.FC<CreateProps> = (props) => {
         <div
           className="tooltip tooltip-open tooltip-left before:py-2"
           data-tip="扫描二维码">
-          <button
+          <Button
+            onlyLoading
+            loading={scaning}
             onClick={handleQRScan}
             className="btn btn-square btn-secondary shadow-2xl scale-75">
             <QrCode />
-          </button>
+          </Button>
         </div>
       </div>
 

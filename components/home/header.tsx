@@ -4,12 +4,12 @@ import React from "react"
 
 import { DEFAULT_SETTINGS } from "~utils/constant"
 
-interface HeaderProps {
-  type?: typeof DEFAULT_SETTINGS.containerType
-}
+import { GlobalContext } from "./context"
+
+interface HeaderProps {}
 
 const Header: React.FC<HeaderProps> = (props) => {
-  const { type } = props
+  const { containerType } = React.useContext(GlobalContext)
 
   const goSettings = () => {
     chrome.tabs.create({
@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = (props) => {
   return (
     <div
       className={clsx("h-16 flex justify-between items-center px-4", {
-        "mt-4": type === "phone"
+        "mt-4": containerType === "phone"
       })}>
       <button onClick={goSettings} className="btn btn-ghost btn-sm btn-circle">
         <Menu />
