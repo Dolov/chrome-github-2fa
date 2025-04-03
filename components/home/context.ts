@@ -1,8 +1,12 @@
 import React from "react"
 
-export const GlobalContext = React.createContext<{
+export interface GlobalContextProps {
+  source: "settings" | "popup"
   containerType: "phone" | "default"
-}>({
+}
+
+export const GlobalContext = React.createContext<GlobalContextProps>({
+  source: "popup",
   containerType: "default"
 })
 

@@ -64,6 +64,7 @@ const Create: React.FC<CreateProps> = (props) => {
     const { success, data, error } = result
     if (success) {
       const parsedData = parseOtpauthUrl(data)
+      console.log("parsedData: ", parsedData)
       if (isExist(parsedData)) {
         message.warning("该 QR code 已存在。")
         return

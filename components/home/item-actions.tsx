@@ -82,7 +82,7 @@ const ItemActions: React.FC<{
 
   if (!visible) return null
 
-  const { pinned } = itemData
+  const { pinned, account, issuer } = itemData
   const url = generateOtpauthUrl(itemData)
   return (
     <div
@@ -110,7 +110,7 @@ const ItemActions: React.FC<{
         <div className="w-full h-full flex flex-col items-center">
           <QRDsj qrcode={encodeData({ text: url })} />
           <div className="text-xl font-bold">
-            {itemData.issuer} - {itemData.account}
+            {issuer} - {account}
           </div>
         </div>
       </Modal>
@@ -160,9 +160,10 @@ const ItemActions: React.FC<{
           </div>
         </div>
         <div className="flex-1 flex items-center justify-between px-4 border-t border-neutral/30">
-          <span>
-            {itemData.issuer} ({itemData.account})
-          </span>
+          <div>
+            <span>{issuer}</span>
+            {account && <span>({account})</span>}
+          </div>
           <span onClick={onClose} className="cursor-pointer">
             取消
           </span>
