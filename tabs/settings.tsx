@@ -152,7 +152,7 @@ const Setting: React.FC<SettingProps> = (props) => {
   const {} = props
 
   return (
-    <div className="overflow-auto h-full">
+    <div className="flex-1 overflow-auto">
       <div className="collapse bg-base-200 mb-4">
         <input type="radio" name="container" defaultChecked />
         <div className="collapse-title text-xl font-medium">布局模式</div>
