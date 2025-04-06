@@ -25,5 +25,5 @@ export const useThemeChange = () => {
     html.setAttribute("data-theme", theme)
   }, [theme])
 
-  return [theme, setTheme]
+  return [theme, setTheme] as const
 }

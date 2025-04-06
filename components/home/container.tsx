@@ -1,9 +1,7 @@
 import clsx from "clsx"
 import React from "react"
 
-import { useStorage } from "@plasmohq/storage/hook"
-
-import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
+import { ContainerType } from "~utils/constant"
 
 import { GlobalContext } from "./context"
 import Phone from "./phone"
@@ -16,7 +14,7 @@ export interface ContainerProps {
 const Container: React.FC<ContainerProps> = (props) => {
   const { children } = props
   const { containerType } = React.useContext(GlobalContext)
-  if (containerType === "phone") {
+  if (containerType === ContainerType.PHONE) {
     return <Phone className="relative w-[350px] h-[600px]">{children}</Phone>
   }
   return (

@@ -5,14 +5,29 @@ export enum StorageKey {
   SETTINGS = "settings"
 }
 
+export enum SourceType {
+  POPUP = "popup",
+  SETTINGS = "settings"
+}
+
+export enum ContainerType {
+  PHONE = "phone",
+  DEFAULT = "default"
+}
+
+export enum FaviconType {
+  ELEGANT = "elegant",
+  MINIMAL = "minimal"
+}
+
 export const DEFAULT_SETTINGS: {
   theme: string
-  containerType: "phone" | "default"
-  faviconType: string
+  faviconType: FaviconType
+  containerType: ContainerType
 } = {
   theme: "light",
-  containerType: "phone", // phone, default
-  faviconType: "elegant" // minimal, elegant
+  faviconType: FaviconType.ELEGANT,
+  containerType: ContainerType.DEFAULT
 }
 
 export enum ActionKey {

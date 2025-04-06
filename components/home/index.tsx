@@ -1,21 +1,23 @@
 import React from "react"
 
-import Container, { type ContainerProps } from "./container"
+import { ContainerType, SourceType } from "~utils/constant"
+
+import Container from "./container"
 import { Provider } from "./context"
 import Create from "./create"
 import Header from "./header"
 import List from "./list"
 
 interface HomeProps {
-  source: "settings" | "popup"
-  containerType: ContainerProps["type"]
+  source: SourceType
+  containerType: ContainerType
 }
 
 const Home: React.FC<HomeProps> = (props) => {
-  const { containerType, source = "popup" } = props
+  const { containerType, source } = props
 
   return (
-    <Provider value={{ containerType }}>
+    <Provider value={{ source, containerType }}>
       <Container>
         <Header />
         <List />

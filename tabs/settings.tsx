@@ -4,10 +4,16 @@ import React from "react"
 import { useStorage } from "@plasmohq/storage/hook"
 
 import Main from "~components/home"
-import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
+import {
+  ContainerType,
+  DEFAULT_SETTINGS,
+  SourceType,
+  StorageKey
+} from "~utils/constant"
 import { useThemeChange } from "~utils/hooks"
 
 import "~style.less"
+import "./settings.less"
 
 const themes = [
   "light",
@@ -117,30 +123,36 @@ const ContainerList = () => {
           type="radio"
           name="container-type"
           className="radio"
-          checked={containerType === "default"}
+          checked={containerType === ContainerType.DEFAULT}
           onChange={() => {
             setSettings({
               ...settings,
-              containerType: "default"
+              containerType: ContainerType.DEFAULT
             })
           }}
         />
-        <Main source="settings" containerType="default" />
+        <Main
+          source={SourceType.SETTINGS}
+          containerType={ContainerType.DEFAULT}
+        />
       </div>
       <div className="flex flex-col items-center gap-4">
         <input
           type="radio"
           name="container-type"
           className="radio"
-          checked={containerType === "phone"}
+          checked={containerType === ContainerType.PHONE}
           onChange={() => {
             setSettings({
               ...settings,
-              containerType: "phone"
+              containerType: ContainerType.PHONE
             })
           }}
         />
-        <Main source="settings" containerType="phone" />
+        <Main
+          source={SourceType.SETTINGS}
+          containerType={ContainerType.PHONE}
+        />
       </div>
     </div>
   )

@@ -1,13 +1,15 @@
 import React from "react"
 
+import { ContainerType, SourceType } from "~utils/constant"
+
 export interface GlobalContextProps {
-  source: "settings" | "popup"
-  containerType: "phone" | "default"
+  source: SourceType
+  containerType: ContainerType
 }
 
 export const GlobalContext = React.createContext<GlobalContextProps>({
-  source: "popup",
-  containerType: "default"
+  source: SourceType.POPUP,
+  containerType: ContainerType.DEFAULT
 })
 
 const { Provider, Consumer } = GlobalContext
