@@ -2,7 +2,8 @@ import jsQR from "jsqr"
 import type { PlasmoCSConfig, PlasmoGetShadowHostId } from "plasmo"
 
 import { ActionKey, contentBaseZindex } from "~utils/constant"
-import { isOtpauthUrl, message } from "~utils/content-utils"
+import { isOtpauthUrl } from "~utils/content-utils"
+import message from "~utils/message"
 
 const containerId = "github-2fa-container-1742783738736"
 export const getShadowHostId: PlasmoGetShadowHostId = () => containerId

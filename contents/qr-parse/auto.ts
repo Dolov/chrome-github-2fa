@@ -111,3 +111,5 @@ const highlightElement = (element: HTMLElement) => {
     }
   }, 500)
 }
+
+export { scanQRCode, highlightElement }

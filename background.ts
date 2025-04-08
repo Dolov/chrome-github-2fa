@@ -25,16 +25,6 @@ const menuList: (chrome.contextMenus.CreateProperties & {
     }
   },
   {
-    id: "document",
-    title: "使用文档",
-    contexts: ["action"],
-    action() {
-      chrome.tabs.create({
-        url: "https://github.com/Dolov/chrome-github-2fa/issues/1"
-      })
-    }
-  },
-  {
     id: "settings",
     title: "设置",
     contexts: ["action"],
