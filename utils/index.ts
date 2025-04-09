@@ -107,3 +107,63 @@ export const downloadBase64Image = (base64Data: string, fileName: string) => {
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
+
+// 判断二维码中解析出的数据是否符合 otpauth 格式
+export const isOtpauthUrl = (data: string) => {
+  if (!data) return false
+  return data.startsWith("otpauth://")
+}
+
+export const extractDynamicPartFromURL = (url: string, pattern: string) => {
+  // 将 * 替换成捕获组
+  const escapedPattern = pattern
+    .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&") // 转义正则特殊字符
+    .replace(/\*/g, "([^/]+)") // 将 * 替换为捕获组
+
+  const regex = new RegExp("^" + escapedPattern + "$") // 精确匹配整个路径
+
+  const match = url.match(regex)
+  if (match) {
+    return match[1] // 返回捕获的动态部分（即 * 部分的内容）
+  }
+  return null // 如果没有匹配，返回 null
+}
+
+export const startOtpMessageUpdater = (
+  input: HTMLInputElement,
+  secret: string
+) => {
+  const renderText = () => {
+    const GRADIENT =
+      "linear-gradient(to right, \
+    #422ad5,   /* 靛蓝 */\
+    #00bafe,   /* 湖蓝 */\
+    #00d3bb,   /* 青绿 */\
+    #00d390,   /* 草绿 */\
+    #fcb700,   /* 金黄 */\
+    #f43098,   /* 玫红 */\
+    #ff637d    /* 粉红 */\
+    )"
+
+    const textElement = document.createElement("p")
+    textElement.style.fontSize = "12px"
+    textElement.style.fontWeight = "normal"
+    textElement.style.color = "transparent"
+    textElement.style.background = GRADIENT
+    textElement.style.webkitBackgroundClip = "text"
+    textElement.style.backgroundClip = "text"
+    textElement.style.padding = "2px 0"
+    input.insertAdjacentElement("afterend", textElement)
+    return textElement
+  }
+
+  const updateOtpMessage = (textElement: HTMLParagraphElement) => {
+    const timeRemaining = getTimeRemaining()
+    input.value = getOtp(secret)
+    textElement.textContent = `2FA 自动扫描服务由 gitHub-2fa 扩展提供，感谢您的使用！(有效期：${timeRemaining}秒)`
+  }
+
+  const textElement = renderText()
+  updateOtpMessage(textElement)
+  setInterval(() => updateOtpMessage(textElement), 1000)
+}

@@ -48,6 +48,11 @@ export interface DataProps {
   recoveryCodes?: { value: string; copyed: boolean }[]
 }
 
+export enum Issuers {
+  GITHUB = "GitHub",
+  NPM = "NPM"
+}
+
 // otpauth://totp/GitHub:acloudfly?secret=N2CNXSJV7LG75BUI&issuer=GitHub
 
 export const mockData = [
