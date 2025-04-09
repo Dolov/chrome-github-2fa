@@ -167,3 +167,37 @@ export const startOtpMessageUpdater = (
   updateOtpMessage(textElement)
   setInterval(() => updateOtpMessage(textElement), 1000)
 }
+
+export const displayRecoveryCodeSaveMessage = (
+  element,
+  codes,
+  { issuer, account }
+) => {
+  const GRADIENT =
+    "linear-gradient(to right, \
+    #422ad5,   /* 靛蓝 */\
+    #00bafe,   /* 湖蓝 */\
+    #00d3bb,   /* 青绿 */\
+    #00d390,   /* 草绿 */\
+    #fcb700,   /* 金黄 */\
+    #f43098,   /* 玫红 */\
+    #ff637d    /* 粉红 */\
+    )"
+  const textElement = document.createElement("p")
+  textElement.style.fontSize = "12px"
+  textElement.style.fontWeight = "normal"
+  textElement.style.color = "transparent"
+  textElement.style.background = GRADIENT
+  textElement.style.webkitBackgroundClip = "text"
+  textElement.style.backgroundClip = "text"
+  textElement.style.padding = "2px 0"
+  textElement.style.cursor = "pointer"
+
+  textElement.style.borderImage = `${GRADIENT} 1% / 5% / 0 stretch`
+
+  element.insertAdjacentElement("afterend", textElement)
+  textElement.textContent = `点击保存 ${issuer} - ${account} 的恢复码到 github-2fa 扩展中`
+  textElement.addEventListener("click", async () => {
+    alert("保存成功")
+  })
+}
