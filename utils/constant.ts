@@ -44,13 +44,12 @@ export interface DataProps {
   account: string
   pinned?: boolean
   remark?: string
-  otpauthUrl?: string
-  recoveryCodes?: { value: string; copyed: boolean }[]
+  recoveryCodes?: string[]
 }
 
 export enum Issuers {
-  GITHUB = "GitHub",
-  NPM = "NPM"
+  NPM = "NPM",
+  GITHUB = "GitHub"
 }
 
 // otpauth://totp/GitHub:acloudfly?secret=N2CNXSJV7LG75BUI&issuer=GitHub

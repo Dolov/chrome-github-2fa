@@ -1,6 +1,12 @@
 import { authenticator } from "otplib"
 
-export function parseOtpauthUrl(otpauthUrl) {
+import { Storage } from "@plasmohq/storage"
+
+import { StorageKey, type DataProps } from "~utils/constant"
+
+import message from "./message"
+
+export const parseOtpauthUrl = (otpauthUrl: string) => {
   const url = new URL(otpauthUrl)
   if (url.protocol !== "otpauth:") {
     throw new Error("Invalid OTPAuth URL")
@@ -11,7 +17,7 @@ export function parseOtpauthUrl(otpauthUrl) {
   const params = Object.fromEntries(new URLSearchParams(url.search))
 
   return {
-    type, // e.g., "totp" or "hotp"
+    type,
     account,
     secret: params.secret,
     issuer: params.issuer
@@ -131,8 +137,14 @@ export const extractDynamicPartFromURL = (url: string, pattern: string) => {
 
 export const startOtpMessageUpdater = (
   input: HTMLInputElement,
-  secret: string
+  secret: string,
+  options?: {
+    // 可选CSSStyleDeclaration
+    style?: Partial<CSSStyleDeclaration>
+    placeholder?: boolean
+  }
 ) => {
+  const { style = {}, placeholder } = options || {}
   const renderText = () => {
     const GRADIENT =
       "linear-gradient(to right, \
@@ -145,6 +157,7 @@ export const startOtpMessageUpdater = (
     #ff637d    /* 粉红 */\
     )"
 
+    const container = document.createElement("div")
     const textElement = document.createElement("p")
     textElement.style.fontSize = "12px"
     textElement.style.fontWeight = "normal"
@@ -152,14 +165,29 @@ export const startOtpMessageUpdater = (
     textElement.style.background = GRADIENT
     textElement.style.webkitBackgroundClip = "text"
     textElement.style.backgroundClip = "text"
-    textElement.style.padding = "2px 0"
-    input.insertAdjacentElement("afterend", textElement)
+    textElement.style.margin = "0"
+    textElement.style.padding = "0"
+    container.appendChild(textElement)
+    container.style.display = "flex"
+    container.style.alignItems = "center"
+    // 遍历 style 对象的每个属性
+    for (const key in style) {
+      if (style[key] !== undefined) {
+        container.style[key] = style[key]
+      }
+    }
+    input.insertAdjacentElement("afterend", container)
     return textElement
   }
 
   const updateOtpMessage = (textElement: HTMLParagraphElement) => {
     const timeRemaining = getTimeRemaining()
-    input.value = getOtp(secret)
+
+    if (placeholder) {
+      input.placeholder = `请输入 ${getOtp(secret)}`
+    } else {
+      input.value = getOtp(secret)
+    }
     textElement.textContent = `2FA 自动扫描服务由 gitHub-2fa 扩展提供，感谢您的使用！(有效期：${timeRemaining}秒)`
   }
 
@@ -170,8 +198,7 @@ export const startOtpMessageUpdater = (
 
 export const displayRecoveryCodeSaveMessage = (
   element,
-  codes,
-  { issuer, account }
+  parsedData: Partial<DataProps>
 ) => {
   const GRADIENT =
     "linear-gradient(to right, \
@@ -196,8 +223,48 @@ export const displayRecoveryCodeSaveMessage = (
   textElement.style.borderImage = `${GRADIENT} 1% / 5% / 0 stretch`
 
   element.insertAdjacentElement("afterend", textElement)
+
+  const { account, issuer } = parsedData
   textElement.textContent = `点击保存 ${issuer} - ${account} 的恢复码到 github-2fa 扩展中`
-  textElement.addEventListener("click", async () => {
-    alert("保存成功")
-  })
+  return textElement
+}
+
+export const getGitHubUserName = (): string => {
+  const selectors = [
+    'meta[property="profile:username"]',
+    'meta[name="user-login"]'
+  ]
+
+  const meta = selectors
+    .map((selector) => document.querySelector(selector))
+    .find((el): el is HTMLMetaElement => el !== null)
+
+  return meta?.getAttribute("content") || ""
+}
+
+export const save2faToStorage = async (parsed2fa: DataProps) => {
+  const storage = new Storage()
+  const data: DataProps[] = await storage.get(StorageKey.DATA)
+  if (!Array.isArray(data)) return
+  const { account, issuer } = parsed2fa
+  const existing2fa = data.find(
+    (item) =>
+      item.account === account &&
+      item.issuer?.toLowerCase?.() === issuer?.toLowerCase?.()
+  )
+  const newData = [...data, parsed2fa]
+  await storage.set(StorageKey.DATA, newData)
+
+  if (existing2fa) {
+    message.warn(
+      `保存成功，扩展内已存在多个 ${issuer} - ${account} 的 2FA 信息，请确认是否为重复添加。`,
+      20 * 1000
+    )
+  } else {
+    message.success("已成功保存 npm 账号的 2FA 信息！")
+  }
+}
+
+export const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }

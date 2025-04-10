@@ -39,8 +39,8 @@ const OtpForm: React.FC<{
             ...item,
             issuer,
             secret,
-            account,
-            remark
+            remark,
+            account
           }
         }
         return item
@@ -124,6 +124,7 @@ const OtpForm: React.FC<{
               <span className="label-text">恢复码</span>
             </div>
             <textarea
+              value={form.recoveryCodes?.join(",")}
               className="textarea textarea-bordered h-20"
               placeholder="支持空格、换行、逗号，顿号等格式 例如：xxxx-xxxx,xxxx-xxxx"></textarea>
           </label>

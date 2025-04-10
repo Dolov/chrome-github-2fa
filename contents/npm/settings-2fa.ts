@@ -1,14 +1,11 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import { Storage } from "@plasmohq/storage"
-
 import {
   extractDynamicPartFromURL,
   parseOtpauthUrl,
+  save2faToStorage,
   startOtpMessageUpdater
 } from "~utils"
-import { StorageKey, type DataProps } from "~utils/constant"
-import message from "~utils/message"
 
 import { highlightElement, scanQRCode } from "../qr-parse/auto"
 
@@ -41,7 +38,7 @@ const init = async () => {
 
   submitButton.addEventListener("click", () => {
     if (!input.value) return
-    updateStorage({
+    save2faToStorage({
       ...parsedData,
       id: Date.now().toString(),
       account
@@ -70,29 +67,6 @@ function waitForPathMatchStrict({ endsWith }) {
       }
     }, 300)
   })
-}
-
-const updateStorage = async (parsed2fa: DataProps) => {
-  const storage = new Storage()
-  const data: DataProps[] = await storage.get(StorageKey.DATA)
-  if (!Array.isArray(data)) return
-  const { account, issuer } = parsed2fa
-  const existing2fa = data.find(
-    (item) =>
-      item.account === account &&
-      item.issuer?.toLowerCase?.() === issuer?.toLowerCase?.()
-  )
-  const newData = [...data, parsed2fa]
-  await storage.set(StorageKey.DATA, newData)
-
-  if (existing2fa) {
-    message.warn(
-      "已保存 2FA 信息，但该 npm 账号记录已存在，请确认是否为重复添加或更新。",
-      20 * 1000
-    )
-  } else {
-    message.success("已成功保存 npm 账号的 2FA 信息！")
-  }
 }
 
 init()
