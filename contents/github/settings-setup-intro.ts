@@ -77,14 +77,10 @@ const renderRecoveryCodeSaveTip = async (parsedData: {
   const codes = liTags.map((p) => p.innerText).filter((p) => p.length > 0)
   if (codes.length === 0) return
 
-  const element = displayRecoveryCodeSaveMessage(recoveryContainer, parsedData)
-
-  element.addEventListener("click", () => {
-    save2faToStorage({
-      ...parsedData,
-      id: Date.now().toString(),
-      recoveryCodes: codes
-    })
+  displayRecoveryCodeSaveMessage(recoveryContainer, {
+    ...parsedData,
+    id: Date.now().toString(),
+    recoveryCodes: codes
   })
 }
 

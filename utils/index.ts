@@ -225,7 +225,7 @@ export const startOtpMessageUpdater = (
 
 export const displayRecoveryCodeSaveMessage = (
   element,
-  parsedData: Partial<DataProps>
+  parsedData: DataProps
 ) => {
   const { container, textElement } = createGradientTextContainer()
 
@@ -233,7 +233,11 @@ export const displayRecoveryCodeSaveMessage = (
 
   const { account, issuer } = parsedData
   textElement.textContent = `点击保存 ${issuer} - ${account} 的恢复码到 github-2fa 扩展中`
-  return textElement
+  textElement.style.textDecoration = "underline"
+  textElement.style.cursor = "pointer"
+  container.addEventListener("click", () => {
+    save2faToStorage(parsedData)
+  })
 }
 
 export const getGitHubUserName = (): string => {
@@ -250,6 +254,10 @@ export const getGitHubUserName = (): string => {
 }
 
 export const save2faToStorage = async (parsed2fa: DataProps) => {
+  if (!parsed2fa.id) {
+    message.error("保存失败，缺少 ID 信息")
+    return
+  }
   const storage = new Storage()
   const data: DataProps[] = await storage.get(StorageKey.DATA)
   if (!Array.isArray(data)) return

@@ -43,6 +43,10 @@ const ItemActions: React.FC<{
     setEditVisible(true)
   }
 
+  const handleRecovery = () => {
+    setRecoveryVisible(true)
+  }
+
   const handleCopy = () => {}
 
   const handleShare = () => {}
@@ -159,7 +163,9 @@ const ItemActions: React.FC<{
             <Pencil size={18} />
             <span className="text-xs font-normal">编辑</span>
           </div>
-          <div className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
+          <div
+            onClick={handleRecovery}
+            className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
             <KeyRound size={18} />
             <span className="text-xs font-normal">恢复码</span>
           </div>

@@ -93,7 +93,7 @@ const initMessage = () => {
   if (!messageContainer) {
     messageContainer = document.createElement("div")
     messageContainer.id = containerId
-    messageContainer.style.zIndex = "1000"
+    messageContainer.style.zIndex = "100000"
     messageContainer.style.position = "fixed"
     document.body.appendChild(messageContainer)
   }
