@@ -17,7 +17,6 @@ interface MessageProps {
 const defaultDuration = 3000
 
 export const Message = (props: MessageProps, ref) => {
-  const { type, content, duration = defaultDuration } = props
   const [messages, setMessages] = React.useState([])
 
   React.useImperativeHandle(
@@ -34,7 +33,7 @@ export const Message = (props: MessageProps, ref) => {
     content: string,
     duration: number = defaultDuration
   ) => {
-    const newMessage = { type, content, id: Date.now() }
+    const newMessage = { type, content, id: Date.now(), duration }
     setMessages((prevMessages) => [...prevMessages, newMessage])
 
     // 自动消失
@@ -48,7 +47,7 @@ export const Message = (props: MessageProps, ref) => {
   return (
     <div className="toast toast-top toast-center">
       {messages.map((message) => {
-        const { id, type, content } = message
+        const { id, type, content, duration } = message
         return (
           <div
             key={id}
@@ -64,18 +63,6 @@ export const Message = (props: MessageProps, ref) => {
             style={{
               animation: `fadeInDown 0.5s ease-in-out, fadeOutUp 0.5s ease-in-out ${duration - 500}ms forwards`
             }}>
-            {/* <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 shrink-0 stroke-current"
-              fill="none"
-              viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg> */}
             <span>{content}</span>
           </div>
         )
