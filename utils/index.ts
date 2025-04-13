@@ -135,6 +135,39 @@ export const extractDynamicPartFromURL = (url: string, pattern: string) => {
   return null // 如果没有匹配，返回 null
 }
 
+const createGradientTextContainer = () => {
+  const GRADIENT =
+    "linear-gradient(to right, \
+    #422ad5,   /* 靛蓝 */\
+    #00bafe,   /* 湖蓝 */\
+    #00d3bb,   /* 青绿 */\
+    #00d390,   /* 草绿 */\
+    #fcb700,   /* 金黄 */\
+    #f43098,   /* 玫红 */\
+    #ff637d    /* 粉红 */\
+    )"
+
+  const container = document.createElement("div")
+  const textElement = document.createElement("p")
+  textElement.style.fontSize = "12px"
+  textElement.style.fontWeight = "normal"
+  textElement.style.color = "transparent"
+  textElement.style.margin = "0"
+  textElement.style.padding = "0"
+  container.appendChild(textElement)
+
+  container.style.flex = "1"
+  container.style.display = "flex"
+  container.style.alignItems = "center"
+  container.style.justifyContent = "center"
+  container.style.padding = "2px 0"
+  container.style.background = GRADIENT
+  container.style.webkitBackgroundClip = "text"
+  container.style.backgroundClip = "text"
+  container.style.borderImage = `${GRADIENT} 1% / 5% / 0 stretch`
+  return { container, textElement }
+}
+
 export const startOtpMessageUpdater = (
   input: HTMLInputElement,
   secret: string,
@@ -146,31 +179,7 @@ export const startOtpMessageUpdater = (
 ) => {
   const { style = {}, placeholder } = options || {}
   const renderText = () => {
-    const GRADIENT =
-      "linear-gradient(to right, \
-    #422ad5,   /* 靛蓝 */\
-    #00bafe,   /* 湖蓝 */\
-    #00d3bb,   /* 青绿 */\
-    #00d390,   /* 草绿 */\
-    #fcb700,   /* 金黄 */\
-    #f43098,   /* 玫红 */\
-    #ff637d    /* 粉红 */\
-    )"
-
-    const container = document.createElement("div")
-    const textElement = document.createElement("p")
-    textElement.style.fontSize = "12px"
-    textElement.style.fontWeight = "normal"
-    textElement.style.color = "transparent"
-    textElement.style.background = GRADIENT
-    textElement.style.webkitBackgroundClip = "text"
-    textElement.style.backgroundClip = "text"
-    textElement.style.margin = "0"
-    textElement.style.padding = "0"
-    container.appendChild(textElement)
-    container.style.display = "flex"
-    container.style.alignItems = "center"
-    // 遍历 style 对象的每个属性
+    const { container, textElement } = createGradientTextContainer()
     for (const key in style) {
       if (style[key] !== undefined) {
         container.style[key] = style[key]
@@ -188,11 +197,29 @@ export const startOtpMessageUpdater = (
     } else {
       input.value = getOtp(secret)
     }
-    textElement.textContent = `2FA 自动扫描服务由 gitHub-2fa 扩展提供，感谢您的使用！(有效期：${timeRemaining}秒)`
+    textElement.innerHTML = `
+      <style>
+        .gradient-link {
+          color: inherit;
+          text-decoration: none;
+        }
+        .gradient-link:hover {
+          text-decoration: underline;
+          text-decoration-color: #00d3bb;
+          text-decoration-thickness: 1px;
+          text-underline-offset: 3px;
+        }
+      </style>
+      2FA 服务由 <a class="gradient-link" href="https://github.com/你的项目链接" target="_blank">github-2fa</a> 扩展提供，感谢您的使用！(有效期：${timeRemaining}秒)`
   }
 
   const textElement = renderText()
   updateOtpMessage(textElement)
+  textElement.addEventListener("click", () => {
+    const code = getOtp(secret)
+    copyTextToClipboard(code)
+    message.success(`已复制 ${code} 到剪贴板`)
+  })
   setInterval(() => updateOtpMessage(textElement), 1000)
 }
 
@@ -200,29 +227,9 @@ export const displayRecoveryCodeSaveMessage = (
   element,
   parsedData: Partial<DataProps>
 ) => {
-  const GRADIENT =
-    "linear-gradient(to right, \
-    #422ad5,   /* 靛蓝 */\
-    #00bafe,   /* 湖蓝 */\
-    #00d3bb,   /* 青绿 */\
-    #00d390,   /* 草绿 */\
-    #fcb700,   /* 金黄 */\
-    #f43098,   /* 玫红 */\
-    #ff637d    /* 粉红 */\
-    )"
-  const textElement = document.createElement("p")
-  textElement.style.fontSize = "12px"
-  textElement.style.fontWeight = "normal"
-  textElement.style.color = "transparent"
-  textElement.style.background = GRADIENT
-  textElement.style.webkitBackgroundClip = "text"
-  textElement.style.backgroundClip = "text"
-  textElement.style.padding = "2px 0"
-  textElement.style.cursor = "pointer"
+  const { container, textElement } = createGradientTextContainer()
 
-  textElement.style.borderImage = `${GRADIENT} 1% / 5% / 0 stretch`
-
-  element.insertAdjacentElement("afterend", textElement)
+  element.insertAdjacentElement("afterend", container)
 
   const { account, issuer } = parsedData
   textElement.textContent = `点击保存 ${issuer} - ${account} 的恢复码到 github-2fa 扩展中`

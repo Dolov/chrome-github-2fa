@@ -17,6 +17,7 @@ import { generateOtpauthUrl } from "~utils"
 import { StorageKey, type DataProps } from "~utils/constant"
 
 import OptForm from "./otp-form"
+import RecoveryCodes from "./recovery-codes"
 
 const ItemActions: React.FC<{
   visible: boolean
@@ -27,6 +28,7 @@ const ItemActions: React.FC<{
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const [qrVisible, setQrVisible] = React.useState(false)
   const [editVisible, setEditVisible] = React.useState(false)
+  const [recoveryVisible, setRecoveryVisible] = React.useState(false)
   const handleMaskClick = (e) => {
     e.stopPropagation()
   }
@@ -99,6 +101,15 @@ const ItemActions: React.FC<{
           setEditVisible(false)
         }}
         editItem={itemData}
+      />
+      <RecoveryCodes
+        data={itemData}
+        title="恢复密钥"
+        visible={recoveryVisible}
+        onClose={() => {
+          onClose()
+          setRecoveryVisible(false)
+        }}
       />
       <Modal
         visible={qrVisible}

@@ -38,7 +38,7 @@ const init = async () => {
 
     startOtpMessageUpdater(input, secret, {
       style: {
-        paddingLeft: "16px"
+        marginLeft: "16px"
       },
       placeholder: true
     })

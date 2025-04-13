@@ -7,6 +7,7 @@ import Modal from "~components/ui/modal"
 import { StorageKey, type DataProps } from "~utils/constant"
 
 import { GlobalContext } from "./context"
+import { useModalWidth } from "./hooks"
 
 const defaultForm = {
   issuer: "",
@@ -21,7 +22,7 @@ const OtpForm: React.FC<{
   editItem?: any
 }> = (props) => {
   const { visible, onClose, editItem } = props
-  const { containerType } = React.useContext(GlobalContext)
+  const width = useModalWidth()
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const title = "输入账户详细信息"
   const [form, setForm] = React.useState({
@@ -66,9 +67,9 @@ const OtpForm: React.FC<{
     <Modal
       onOk={handleOk}
       title={title}
+      width={width}
       visible={visible}
-      onClose={onClose}
-      width={containerType === "phone" ? "88%" : "94%"}>
+      onClose={onClose}>
       <div className="flex flex-col gap-3 p-1">
         <label className="input input-bordered flex items-center gap-2">
           平台
@@ -118,17 +119,6 @@ const OtpForm: React.FC<{
             }}
           />
         </label>
-        {editItem && (
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text">恢复码</span>
-            </div>
-            <textarea
-              value={form.recoveryCodes?.join(",")}
-              className="textarea textarea-bordered h-20"
-              placeholder="支持空格、换行、逗号，顿号等格式 例如：xxxx-xxxx,xxxx-xxxx"></textarea>
-          </label>
-        )}
       </div>
     </Modal>
   )
