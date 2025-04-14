@@ -30,7 +30,7 @@ const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
     }, 3000)
   }
 
-  const { recoveryCodes } = data
+  const { recoveryCodes = [] } = data
   return (
     <Modal title={title} width={width} visible={visible} onClose={onClose}>
       <div className="grid grid-cols-2 gap-3">

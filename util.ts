@@ -115,9 +115,3 @@ export const getUserName = () => {
   }
   return ""
 }
-
-export const goSettingSecurity = () => {
-  chrome.tabs.create({
-    url: "https://github.com/settings/security?type=app#two-factor-summary"
-  })
-}

@@ -186,7 +186,7 @@ export const startOtpMessageUpdater = (
       }
     }
     input.insertAdjacentElement("afterend", container)
-    return textElement
+    return { container, textElement }
   }
 
   const updateOtpMessage = (textElement: HTMLParagraphElement) => {
@@ -213,9 +213,9 @@ export const startOtpMessageUpdater = (
       2FA 服务由 <a class="gradient-link" href="https://github.com/你的项目链接" target="_blank">github-2fa</a> 扩展提供，感谢您的使用！(有效期：${timeRemaining}秒)`
   }
 
-  const textElement = renderText()
+  const { container, textElement } = renderText()
   updateOtpMessage(textElement)
-  textElement.addEventListener("click", () => {
+  container.addEventListener("click", () => {
     const code = getOtp(secret)
     copyTextToClipboard(code)
     message.success(`已复制 ${code} 到剪贴板`)
@@ -282,4 +282,27 @@ export const save2faToStorage = async (parsed2fa: DataProps) => {
 
 export const sleep = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export const waitForPathMatchStrict = ({ endsWith }) => {
+  // 转义正则特殊字符，并替换 * 为非斜杠字符
+  const escaped = endsWith
+    .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&") // 转义正则特殊字符
+    .replace(/\*/g, "[^/]+") // * 替换为匹配非斜杠字符
+
+  // 严格匹配
+  const endsWithRegex = new RegExp("^" + escaped + "$")
+
+  return new Promise((resolve, reject) => {
+    const intervalId = setInterval(() => {
+      const currentPath = location.pathname
+
+      // 匹配路径
+      if (endsWithRegex.test(currentPath)) {
+        // 匹配到就停止定时器
+        clearInterval(intervalId)
+        resolve(currentPath)
+      }
+    }, 300)
+  })
 }

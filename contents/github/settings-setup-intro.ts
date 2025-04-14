@@ -5,7 +5,6 @@ import {
   displayRecoveryCodeSaveMessage,
   getOtp,
   parseOtpauthUrl,
-  save2faToStorage,
   sleep,
   startOtpMessageUpdater
 } from "~utils"
