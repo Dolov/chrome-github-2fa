@@ -4,6 +4,7 @@ import {
   copyTextToClipboard,
   displayRecoveryCodeSaveMessage,
   getOtp,
+  onElementAppear,
   parseOtpauthUrl,
   sleep,
   startOtpMessageUpdater
@@ -80,40 +81,6 @@ const renderRecoveryCodeSaveTip = async (parsedData: {
     ...parsedData,
     id: Date.now().toString(),
     recoveryCodes: codes
-  })
-}
-
-const onElementAppear = (selector: string, callback: (el: Element) => void) => {
-  // 首先检查页面是否已经存在该元素
-  const existing = document.querySelector(selector)
-  if (existing) {
-    callback(existing)
-    return
-  }
-
-  // 设置观察器来监听后续 DOM 的变化
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        if (!(node instanceof HTMLElement)) continue
-
-        // 检查当前节点或其子节点是否包含目标元素
-        const target = node.matches?.(selector)
-          ? node
-          : node.querySelector?.(selector)
-
-        if (target) {
-          observer.disconnect()
-          callback(target)
-          return
-        }
-      }
-    }
-  })
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
   })
 }
 
