@@ -1,6 +1,7 @@
 import jsQR from "jsqr"
 import type { PlasmoCSConfig, PlasmoGetShadowHostId } from "plasmo"
 
+import { highlightElement } from "~utils"
 import { ActionKey } from "~utils/constant"
 
 const containerId = "github-2fa-container-1742783738736"
@@ -82,34 +83,4 @@ const readQRCodeFromImage = (img: HTMLImageElement): Promise<string> => {
   })
 }
 
-// 🎯 高亮二维码
-const highlightElement = (element: HTMLElement) => {
-  const colors = [
-    "#4a00ff",
-    "#ff00d3",
-    "#00b6ff",
-    "#00a96e",
-    "#ffbe00",
-    "#ff5861"
-  ]
-  let index = 0
-  let count = 0
-  const maxBlinks = 6
-
-  element.style.transition = "box-shadow 0.3s ease"
-
-  const interval = setInterval(() => {
-    element.style.boxShadow = `0 0 10px 4px ${colors[index]}`
-    index = (index + 1) % colors.length
-    count++
-
-    if (count >= maxBlinks) {
-      clearInterval(interval)
-      setTimeout(() => {
-        element.style.boxShadow = "none"
-      }, 500)
-    }
-  }, 500)
-}
-
-export { scanQRCode, highlightElement }
+export { scanQRCode }

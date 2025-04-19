@@ -44,7 +44,10 @@ export interface DataProps {
   account: string
   pinned?: boolean
   remark?: string
-  recoveryCodes?: string[]
+  recoveryCodes?: {
+    value: string
+    copied: boolean
+  }[]
 }
 
 export enum Issuers {

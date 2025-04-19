@@ -1,3 +1,4 @@
+import jsQR from "jsqr"
 import { authenticator } from "otplib"
 
 import { Storage } from "@plasmohq/storage"
@@ -135,7 +136,9 @@ export const extractDynamicPartFromURL = (url: string, pattern: string) => {
   return null // 如果没有匹配，返回 null
 }
 
-const createGradientTextContainer = () => {
+const createGradientTextContainer = (
+  containerStyle?: Partial<CSSStyleDeclaration>
+) => {
   const GRADIENT =
     "linear-gradient(to right, \
     #422ad5,   /* 靛蓝 */\
@@ -165,6 +168,14 @@ const createGradientTextContainer = () => {
   container.style.webkitBackgroundClip = "text"
   container.style.backgroundClip = "text"
   container.style.borderImage = `${GRADIENT} 1% / 5% / 0 stretch`
+
+  if (containerStyle) {
+    for (const key in containerStyle) {
+      if (containerStyle[key] !== undefined) {
+        container.style[key] = containerStyle[key]
+      }
+    }
+  }
   return { container, textElement }
 }
 
@@ -179,12 +190,7 @@ export const startOtpMessageUpdater = (
 ) => {
   const { style = {}, placeholder } = options || {}
   const renderText = () => {
-    const { container, textElement } = createGradientTextContainer()
-    for (const key in style) {
-      if (style[key] !== undefined) {
-        container.style[key] = style[key]
-      }
-    }
+    const { container, textElement } = createGradientTextContainer(style)
     input.insertAdjacentElement("afterend", container)
     return { container, textElement }
   }
@@ -225,9 +231,13 @@ export const startOtpMessageUpdater = (
 
 export const displayRecoveryCodeSaveMessage = (
   element,
-  parsedData: DataProps
+  parsedData: DataProps,
+  options?: {
+    containerStyle?: Partial<CSSStyleDeclaration>
+  }
 ) => {
-  const { container, textElement } = createGradientTextContainer()
+  const { containerStyle } = options || {}
+  const { container, textElement } = createGradientTextContainer(containerStyle)
 
   element.insertAdjacentElement("afterend", container)
 
@@ -240,44 +250,30 @@ export const displayRecoveryCodeSaveMessage = (
   })
 }
 
-export const getGitHubUserName = (): string => {
-  const selectors = [
-    'meta[property="profile:username"]',
-    'meta[name="user-login"]'
-  ]
-
-  const meta = selectors
-    .map((selector) => document.querySelector(selector))
-    .find((el): el is HTMLMetaElement => el !== null)
-
-  return meta?.getAttribute("content") || ""
-}
-
 export const save2faToStorage = async (parsed2fa: DataProps) => {
   if (!parsed2fa.id) {
     message.error("保存失败，缺少 ID 信息")
     return
   }
-  const storage = new Storage()
-  const data: DataProps[] = await storage.get(StorageKey.DATA)
-  if (!Array.isArray(data)) return
-  const { account, issuer } = parsed2fa
-  const existing2fa = data.find(
-    (item) =>
-      item.account === account &&
-      item.issuer?.toLowerCase?.() === issuer?.toLowerCase?.()
-  )
-  const newData = [...data, parsed2fa]
-  await storage.set(StorageKey.DATA, newData)
 
-  if (existing2fa) {
-    message.warn(
-      `保存成功，扩展内已存在多个 ${issuer} - ${account} 的 2FA 信息，请确认是否为重复添加。`,
-      20 * 1000
-    )
+  const storage = new Storage()
+  const data: DataProps[] = (await storage.get(StorageKey.DATA)) || []
+
+  const { account, issuer } = parsed2fa
+
+  const index = data.findIndex((item) => item.account === account)
+
+  if (index !== -1) {
+    // ✅ 替换旧数据
+    data[index] = parsed2fa
+    message.success(`已更新 ${issuer} - ${account} 的 2FA 信息`)
   } else {
-    message.success("已成功保存 npm 账号的 2FA 信息！")
+    // ✅ 新增
+    data.push(parsed2fa)
+    message.success(`已成功保存 ${issuer} - ${account} 的 2FA 信息`)
   }
+
+  await storage.set(StorageKey.DATA, data)
 }
 
 export const sleep = (ms) => {
@@ -307,39 +303,129 @@ export const waitForPathMatchStrict = ({ endsWith }) => {
   })
 }
 
-export const onElementAppear = (
+export const waitForElement = <T extends Element = Element>(
   selector: string,
-  callback: (el: Element) => void
-) => {
-  // 首先检查页面是否已经存在该元素
-  const existing = document.querySelector(selector)
-  if (existing) {
-    callback(existing)
-    return
-  }
+  once = true
+): Promise<T> => {
+  return new Promise((resolve) => {
+    const existing = document.querySelector(selector)
+    if (existing) {
+      resolve(existing as T)
+      return
+    }
 
-  // 设置观察器来监听后续 DOM 的变化
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        if (!(node instanceof HTMLElement)) continue
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (!(node instanceof HTMLElement)) continue
 
-        // 检查当前节点或其子节点是否包含目标元素
-        const target = node.matches?.(selector)
-          ? node
-          : node.querySelector?.(selector)
+          const target = node.matches?.(selector)
+            ? node
+            : node.querySelector?.(selector)
 
-        if (target) {
-          observer.disconnect()
-          callback(target)
-          return
+          if (target) {
+            if (once) {
+              observer.disconnect()
+            }
+            resolve(target as T)
+            return
+          }
         }
       }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
+  })
+}
+
+export const get2faListFromStorage = async (
+  issuer: string,
+  account: string
+): Promise<DataProps[]> => {
+  const storage = new Storage()
+  const data = (await storage.get(StorageKey.DATA)) || []
+  if (!Array.isArray(data)) return []
+  return data.filter(
+    (item) =>
+      item.account === account &&
+      item.issuer?.toLowerCase?.() === issuer?.toLowerCase?.()
+  )
+}
+
+// 根据传入的元 img 元素，解析二维码
+export const readQRCodeFromImage = (img: HTMLImageElement): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return reject(new Error("无法获取 Canvas 上下文"))
+
+    canvas.width = img.width
+    canvas.height = img.height
+    ctx.drawImage(img, 0, 0, img.width, img.height)
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const code = jsQR(imageData.data, imageData.width, imageData.height)
+
+    code ? resolve(code.data) : reject(new Error("未找到二维码"))
+  })
+}
+
+export const highlightElement = (element: HTMLElement) => {
+  const colors = [
+    "#4a00ff",
+    "#ff00d3",
+    "#00b6ff",
+    "#00a96e",
+    "#ffbe00",
+    "#ff5861"
+  ]
+  let index = 0
+  let count = 0
+  const maxBlinks = 6
+
+  element.style.transition = "box-shadow 0.3s ease"
+
+  const interval = setInterval(() => {
+    element.style.boxShadow = `0 0 10px 4px ${colors[index]}`
+    index = (index + 1) % colors.length
+    count++
+
+    if (count >= maxBlinks) {
+      clearInterval(interval)
+      setTimeout(() => {
+        element.style.boxShadow = "none"
+      }, 500)
     }
+  }, 500)
+}
+
+export const updateCopiedCodeStatus = async (
+  id: string,
+  copiedCode: string
+): Promise<void> => {
+  const storage = new Storage()
+  const data = (await storage.get(StorageKey.DATA)) || []
+
+  if (!Array.isArray(data)) return
+
+  const targetItem = data.find((item) => item.id === id)
+  if (!targetItem || !Array.isArray(targetItem.recoveryCodes)) return
+
+  let updated = false
+
+  targetItem.recoveryCodes = targetItem.recoveryCodes.map((item) => {
+    const { value, copied } = item
+    if (value === copiedCode && !copied) {
+      updated = true
+      return { ...item, copied: true }
+    }
+    return item
   })
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  })
+  if (updated) {
+    await storage.set(StorageKey.DATA, data)
+  }
 }

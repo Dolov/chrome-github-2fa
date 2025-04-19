@@ -4,7 +4,8 @@ import React, { useState } from "react"
 
 import Modal from "~components/ui/modal"
 import { type DataProps } from "~utils/constant"
-import { copyTextToClipboard } from "~utils/index"
+import { useUpdateCopiedCodeStatus } from "~utils/hooks"
+import { copyTextToClipboard, updateCopiedCodeStatus } from "~utils/index"
 
 import { useModalWidth } from "./hooks"
 
@@ -19,6 +20,8 @@ const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
   const { visible, onClose, title, data } = props
   const width = useModalWidth()
 
+  const [updateCodeStatus] = useUpdateCopiedCodeStatus()
+
   // 设置一个状态来跟踪哪个代码被复制，和复制状态
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
@@ -26,30 +29,37 @@ const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
     setCopiedCode(code) // 设置当前复制的代码
     copyTextToClipboard(code)
     setTimeout(() => {
-      setCopiedCode(null) // 3秒后恢复为 ClipboardCopy 图标
-    }, 3000)
+      setCopiedCode(null) // n 秒后恢复为 ClipboardCopy 图标
+      updateCodeStatus(data.id, code)
+    }, 1000)
   }
 
   const { recoveryCodes = [] } = data
   return (
     <Modal title={title} width={width} visible={visible} onClose={onClose}>
       <div className="grid grid-cols-2 gap-3">
-        {recoveryCodes.map((code) => {
-          const isCopied = copiedCode === code
-          const CopyIcon = isCopied ? CopyCheck : ClipboardCopy
+        {recoveryCodes.map((item) => {
+          const { value, copied } = item
+          const isCoping = copiedCode === value
+          const CopyIcon = isCoping ? CopyCheck : ClipboardCopy
           return (
             <div
-              key={code}
-              onClick={() => handleCopy(code)}
+              key={value}
+              onClick={() => handleCopy(value)}
               className={clsx(
                 "badge w-full flex items-center justify-between px-3 py-2",
                 {
-                  // "badge-accent": !isCopied,
-                  // "badge-secondary": isCopied,
-                  "badge-ghost": true
+                  "badge-accent": !copied,
+                  "!badge-ghost": copied,
+                  "!badge-secondary": isCoping
                 }
               )}>
-              <span className="truncate grow min-w-0 line-through">{code}</span>
+              <span
+                className={clsx("truncate grow min-w-0", {
+                  "line-through": copied
+                })}>
+                {value}
+              </span>
               <CopyIcon
                 size={14}
                 className="ml-2 cursor-pointer shrink-0 hover:text-white/80 active:scale-95 transition"

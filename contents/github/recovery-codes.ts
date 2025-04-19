@@ -1,0 +1,47 @@
+import type { PlasmoCSConfig } from "plasmo"
+
+import {
+  displayRecoveryCodeSaveMessage,
+  get2faListFromStorage,
+  waitForElement
+} from "~utils"
+import { Issuers } from "~utils/constant"
+
+import { getGitHubUserName } from "./utils"
+
+export const config: PlasmoCSConfig = {
+  matches: [
+    "https://github.com/settings/auth/recovery-codes",
+    "https://github.com/settings/auth/recovery-codes?"
+  ],
+  all_frames: false
+}
+
+const saveRecoveryCodes = async () => {
+  const account = getGitHubUserName()
+  const data = await get2faListFromStorage(Issuers.GITHUB, account)
+  if (data.length === 0) return
+  const ul = await waitForElement<HTMLImageElement>(
+    `ul.two-factor-recovery-codes`
+  )
+  const liTags: HTMLLIElement[] = Array.from(
+    ul.querySelectorAll("li.two-factor-recovery-code")
+  )
+
+  const codes = liTags.map((p) => p.innerText).filter((p) => p.length > 0)
+  if (codes.length === 0) return
+  displayRecoveryCodeSaveMessage(
+    ul,
+    {
+      ...data[0],
+      recoveryCodes: codes.map((p) => ({ value: p, copied: false }))
+    },
+    {
+      containerStyle: {
+        marginBottom: "16px"
+      }
+    }
+  )
+}
+
+saveRecoveryCodes()

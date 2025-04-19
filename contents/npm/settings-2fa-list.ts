@@ -1,9 +1,12 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import { Storage } from "@plasmohq/storage"
-
-import { extractDynamicPartFromURL, startOtpMessageUpdater } from "~utils"
-import { Issuers, StorageKey, type DataProps } from "~utils/constant"
+import {
+  extractDynamicPartFromURL,
+  get2faListFromStorage,
+  startOtpMessageUpdater,
+  waitForElement
+} from "~utils"
+import { Issuers } from "~utils/constant"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://www.npmjs.com/settings/*/tfa/list"],
@@ -11,10 +14,7 @@ export const config: PlasmoCSConfig = {
 }
 
 const init = async () => {
-  const input = document.querySelector(
-    "input[id='login_otp']"
-  ) as HTMLInputElement
-  if (!input) return
+  const input = await waitForElement<HTMLInputElement>("input[id='login_otp']")
 
   const account = extractDynamicPartFromURL(
     window.location.pathname,
@@ -27,20 +27,6 @@ const init = async () => {
     startOtpMessageUpdater(input, secret)
     return
   }
-}
-
-const get2faListFromStorage = async (
-  issuer: string,
-  account: string
-): Promise<DataProps[]> => {
-  const storage = new Storage()
-  const data = (await storage.get(StorageKey.DATA)) || []
-  if (!Array.isArray(data)) return []
-  return data.filter(
-    (item) =>
-      item.account === account &&
-      item.issuer?.toLowerCase?.() === issuer?.toLowerCase?.()
-  )
 }
 
 init()
