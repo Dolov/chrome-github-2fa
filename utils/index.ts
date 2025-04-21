@@ -235,9 +235,14 @@ export const displayRecoveryCodeSaveMessage = (
 
   element.insertAdjacentElement("afterend", container)
 
+  const saved = isRecoveryCodeSaved(parsedData)
+  if (saved) {
+    textElement.textContent = "恢复码已保存"
+    return
+  }
+
   const { account, issuer } = parsedData
   textElement.textContent = `点击保存 ${issuer} - ${account} 的恢复码到 github-2fa 扩展中`
-  textElement.style.textDecoration = "underline"
   textElement.style.cursor = "pointer"
   container.addEventListener("click", () => {
     save2faToStorage(parsedData)
@@ -281,23 +286,24 @@ export const sleep = (ms) => {
 }
 
 export const waitForPathMatchStrict = ({ endsWith }) => {
-  // 转义正则特殊字符，并替换 * 为非斜杠字符
-  const escaped = endsWith
-    .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&") // 转义正则特殊字符
-    .replace(/\*/g, "[^/]+") // * 替换为匹配非斜杠字符
+  const patterns = Array.isArray(endsWith) ? endsWith : [endsWith]
 
-  // 严格匹配
-  const endsWithRegex = new RegExp("^" + escaped + "$")
+  const regexList = patterns.map((pattern) => {
+    const escaped = pattern
+      .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&") // 转义特殊字符
+      .replace(/\*/g, "[^/?#]+") // * 匹配非 /、?、# 的片段
 
-  return new Promise((resolve, reject) => {
+    return new RegExp(escaped + "$") // 只需确保“以这个结尾”
+  })
+
+  return new Promise((resolve) => {
     const intervalId = setInterval(() => {
-      const currentPath = location.pathname
+      const fullUrl = location.href
 
-      // 匹配路径
-      if (endsWithRegex.test(currentPath)) {
-        // 匹配到就停止定时器
+      const matched = regexList.some((regex) => regex.test(fullUrl))
+      if (matched) {
         clearInterval(intervalId)
-        resolve(currentPath)
+        resolve(fullUrl)
       }
     }, 300)
   })
@@ -400,4 +406,27 @@ export const highlightElement = (element: HTMLElement) => {
       }, 500)
     }
   }, 500)
+}
+
+const isRecoveryCodeSaved = async (parsedData: DataProps): Promise<boolean> => {
+  const storage = new Storage()
+  const storedData: DataProps[] = await storage.get(StorageKey.DATA)
+
+  const { account, issuer, secret, recoveryCodes } = parsedData
+
+  const existingEntry = storedData.find(
+    (item) =>
+      item.issuer === issuer &&
+      item.secret === secret &&
+      item.account === account
+  )
+
+  if (!existingEntry?.recoveryCodes?.length) return false
+
+  const newCodes = recoveryCodes.map((code) => code.value).join(",")
+  const existingCodes = existingEntry.recoveryCodes
+    .map((code) => code.value)
+    .join(",")
+
+  return newCodes === existingCodes
 }

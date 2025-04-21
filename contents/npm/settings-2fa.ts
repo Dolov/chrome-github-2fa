@@ -12,12 +12,20 @@ import {
 import { scanQRCode } from "../qr-parse/auto"
 
 export const config: PlasmoCSConfig = {
-  matches: ["https://www.npmjs.com/settings/*/tfa"],
+  matches: [
+    "https://www.npmjs.com/settings/*/tfa",
+    "https://www.npmjs.com/settings/*/tfa/manageTfa?action=setup-totp"
+  ],
   all_frames: false
 }
 
 const init = async () => {
-  const path = await waitForPathMatchStrict({ endsWith: "/settings/*/tfa/" })
+  const path = await waitForPathMatchStrict({
+    endsWith: [
+      "/settings/*/tfa/",
+      "/settings/*/tfa/manageTfa?action=setup-totp"
+    ]
+  })
   const result = await scanQRCode()
   if (!result) return
   const { data, element } = result
