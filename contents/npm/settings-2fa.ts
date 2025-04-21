@@ -1,14 +1,15 @@
 import type { PlasmoCSConfig } from "plasmo"
 
 import {
-  extractDynamicPartFromURL,
+  extractDynamicSegment,
+  highlightElement,
   parseOtpauthUrl,
   save2faToStorage,
   startOtpMessageUpdater,
   waitForPathMatchStrict
 } from "~utils"
 
-import { highlightElement, scanQRCode } from "../qr-parse/auto"
+import { scanQRCode } from "../qr-parse/auto"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://www.npmjs.com/settings/*/tfa"],
@@ -22,7 +23,7 @@ const init = async () => {
   const { data, element } = result
   highlightElement(element)
   const parsedData = parseOtpauthUrl(data)
-  const account = extractDynamicPartFromURL(path, "/settings/*/tfa/")
+  const account = extractDynamicSegment(path, "/settings/*/tfa/")
   const input = document.querySelector(
     "input[id='enable_otp']"
   ) as HTMLInputElement

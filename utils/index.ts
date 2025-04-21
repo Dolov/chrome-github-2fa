@@ -121,19 +121,13 @@ export const isOtpauthUrl = (data: string) => {
   return data.startsWith("otpauth://")
 }
 
-export const extractDynamicPartFromURL = (url: string, pattern: string) => {
-  // 将 * 替换成捕获组
-  const escapedPattern = pattern
-    .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&") // 转义正则特殊字符
-    .replace(/\*/g, "([^/]+)") // 将 * 替换为捕获组
+export function extractDynamicSegment(url, template) {
+  const templateRegex = template
+    .replace(/\//g, "\\/") // 转义斜杠
+    .replace(/\*/g, "([^/]+)") // 将 * 替换为捕获分组
 
-  const regex = new RegExp("^" + escapedPattern + "$") // 精确匹配整个路径
-
-  const match = url.match(regex)
-  if (match) {
-    return match[1] // 返回捕获的动态部分（即 * 部分的内容）
-  }
-  return null // 如果没有匹配，返回 null
+  const match = url.match(new RegExp(templateRegex))
+  return match ? match[1] : null
 }
 
 const createGradientTextContainer = (
@@ -156,7 +150,7 @@ const createGradientTextContainer = (
   textElement.style.fontWeight = "normal"
   textElement.style.color = "transparent"
   textElement.style.margin = "0"
-  textElement.style.padding = "0"
+  textElement.style.padding = "0 16px"
   container.appendChild(textElement)
 
   container.style.flex = "1"
@@ -259,9 +253,15 @@ export const save2faToStorage = async (parsed2fa: DataProps) => {
   const storage = new Storage()
   const data: DataProps[] = (await storage.get(StorageKey.DATA)) || []
 
-  const { account, issuer } = parsed2fa
+  const { account, issuer, secret } = parsed2fa
 
-  const index = data.findIndex((item) => item.account === account)
+  const index = data.findIndex((item) => {
+    return (
+      item.issuer === issuer &&
+      item.secret === secret &&
+      item.account === account
+    )
+  })
 
   if (index !== -1) {
     // ✅ 替换旧数据
@@ -400,32 +400,4 @@ export const highlightElement = (element: HTMLElement) => {
       }, 500)
     }
   }, 500)
-}
-
-export const updateCopiedCodeStatus = async (
-  id: string,
-  copiedCode: string
-): Promise<void> => {
-  const storage = new Storage()
-  const data = (await storage.get(StorageKey.DATA)) || []
-
-  if (!Array.isArray(data)) return
-
-  const targetItem = data.find((item) => item.id === id)
-  if (!targetItem || !Array.isArray(targetItem.recoveryCodes)) return
-
-  let updated = false
-
-  targetItem.recoveryCodes = targetItem.recoveryCodes.map((item) => {
-    const { value, copied } = item
-    if (value === copiedCode && !copied) {
-      updated = true
-      return { ...item, copied: true }
-    }
-    return item
-  })
-
-  if (updated) {
-    await storage.set(StorageKey.DATA, data)
-  }
 }

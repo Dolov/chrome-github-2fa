@@ -2,9 +2,10 @@ import type { PlasmoCSConfig } from "plasmo"
 
 import {
   displayRecoveryCodeSaveMessage,
-  extractDynamicPartFromURL
+  extractDynamicSegment,
+  get2faListFromStorage
 } from "~utils"
-import { Issuers, StorageKey, type DataProps } from "~utils/constant"
+import { Issuers } from "~utils/constant"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://www.npmjs.com/settings/*/recovery-codes"],
@@ -12,6 +13,13 @@ export const config: PlasmoCSConfig = {
 }
 
 const init = async () => {
+  const account = extractDynamicSegment(
+    location.href,
+    "/settings/*/recovery-codes"
+  )
+  if (!account) return
+  const data = await get2faListFromStorage(Issuers.NPM, account)
+  if (data.length === 0) return
   const container = document.querySelector(
     'div[role="button"][tabindex="0"]'
   ) as HTMLInputElement
@@ -19,16 +27,21 @@ const init = async () => {
   const codes = Array.from(pTags)
     .map((p) => p.innerText)
     .filter((p) => p.length > 0)
+
   if (codes.length === 0) return
 
-  const account = extractDynamicPartFromURL(
-    window.location.pathname,
-    "/settings/*/recovery-codes"
+  displayRecoveryCodeSaveMessage(
+    container,
+    {
+      ...data[0],
+      recoveryCodes: codes.map((p) => ({ value: p, copied: false }))
+    },
+    {
+      containerStyle: {
+        marginBottom: "16px"
+      }
+    }
   )
-  displayRecoveryCodeSaveMessage(container, codes, {
-    account,
-    issuer: Issuers.NPM
-  })
 }
 
 init()
