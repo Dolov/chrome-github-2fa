@@ -1,4 +1,5 @@
 import clsx from "clsx"
+import noData from "data-base64:~assets/no-data.svg"
 import { FileCog } from "lucide-react"
 import React from "react"
 
@@ -25,6 +26,12 @@ const List: React.FC<ListProps> = (props) => {
 
   return (
     <div className="flex-1 overflow-auto px-4">
+      {data.length === 0 && (
+        <img
+          src={noData}
+          className="mt-14 w-full transition-transform duration-700 ease-in-out animate-pulse hover:scale-105"
+        />
+      )}
       {data.map((item) => {
         const { id } = item
         return <ListItem key={id} data={item} />
