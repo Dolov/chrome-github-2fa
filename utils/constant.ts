@@ -2,6 +2,7 @@ export const contentBaseZindex = 10000000
 
 export enum StorageKey {
   DATA = "data",
+  LEGACY_DATA = "DATA_SOURCE",
   SETTINGS = "settings"
 }
 

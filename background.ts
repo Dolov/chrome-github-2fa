@@ -1,4 +1,6 @@
-import { ActionKey } from "~utils/constant"
+import { Storage } from "@plasmohq/storage"
+
+import { ActionKey, StorageKey } from "~utils/constant"
 
 /** 定义右键菜单列表 */
 const menuList: (chrome.contextMenus.CreateProperties & {
@@ -61,3 +63,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true
   }
 })
+
+const adptLegacyData = async () => {
+  const storage = new Storage()
+  const data = await storage.get(StorageKey.DATA)
+  if (Array.isArray(data) && data.length) return
+
+  const legacyData = await storage.get(StorageKey.LEGACY_DATA)
+  if (!legacyData) return
+  const keys = Object.keys(legacyData)
+  if (!keys.length) return
+  const list = keys.map((key) => {
+    const item = legacyData[key]
+    const { account, issuer, secret } = item
+    const recoveryCodes = item.recoveryCodes || []
+    return {
+      issuer,
+      secret,
+      account,
+      id: `${key}-${Date.now()}`,
+      type: "totp",
+      recoveryCodes: recoveryCodes.map((item) => {
+        const { value, copyed } = item
+        return {
+          value,
+          copied: copyed
+        }
+      })
+    }
+  })
+  await storage.set(StorageKey.DATA, list)
+}
+
+adptLegacyData()

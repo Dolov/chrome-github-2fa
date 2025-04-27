@@ -210,7 +210,7 @@ export const startOtpMessageUpdater = (
           text-underline-offset: 3px;
         }
       </style>
-      2FA 服务由 <a class="gradient-link" href="https://github.com/你的项目链接" target="_blank">github-2fa</a> 扩展提供，感谢使用！(有效期：${timeRemaining}秒)`
+      2FA 服务由 <a class="gradient-link" href="https://github.com/Dolov/chrome-best-cookier" target="_blank">github-2fa</a> 扩展提供，感谢使用！(有效期：${timeRemaining}秒)`
   }
 
   const { container, textElement } = renderText()
