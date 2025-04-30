@@ -3,7 +3,7 @@ import { authenticator } from "otplib"
 
 import { Storage } from "@plasmohq/storage"
 
-import { StorageKey, type DataProps } from "~utils/constant"
+import { GRADIENT, StorageKey, type DataProps } from "~utils/constant"
 
 import message from "./message"
 
@@ -133,17 +133,6 @@ export function extractDynamicSegment(url, template) {
 const createGradientTextContainer = (
   containerStyle?: Partial<CSSStyleDeclaration>
 ) => {
-  const GRADIENT =
-    "linear-gradient(to right, \
-    #422ad5,   /* 靛蓝 */\
-    #00bafe,   /* 湖蓝 */\
-    #00d3bb,   /* 青绿 */\
-    #00d390,   /* 草绿 */\
-    #fcb700,   /* 金黄 */\
-    #f43098,   /* 玫红 */\
-    #ff637d    /* 粉红 */\
-    )"
-
   const container = document.createElement("div")
   const textElement = document.createElement("p")
   textElement.style.fontSize = "12px"
@@ -388,45 +377,144 @@ export const highlightElement = (element: HTMLElement) => {
     "#ffbe00",
     "#ff5861"
   ]
+
   let index = 0
   let count = 0
   const maxBlinks = 6
 
-  element.style.transition = "box-shadow 0.3s ease"
+  const pulse = () => {
+    const color = colors[index]
+    element.style.boxShadow = `0 0 20px 8px ${color}`
+    element.style.transform = "scale(1.05)"
+    element.style.opacity = "0.9"
+    element.style.transition =
+      "box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease"
 
-  const interval = setInterval(() => {
-    element.style.boxShadow = `0 0 10px 4px ${colors[index]}`
     index = (index + 1) % colors.length
     count++
 
-    if (count >= maxBlinks) {
-      clearInterval(interval)
+    setTimeout(() => {
+      element.style.boxShadow = `0 0 0px 0px ${color}`
+      element.style.transform = "scale(1)"
+      element.style.opacity = "1"
+    }, 300)
+
+    if (count < maxBlinks) {
+      setTimeout(pulse, 400)
+    } else {
       setTimeout(() => {
         element.style.boxShadow = "none"
+        element.style.transform = "scale(1)"
+        element.style.opacity = "1"
       }, 500)
     }
-  }, 500)
+  }
+
+  pulse()
 }
 
 const isRecoveryCodeSaved = async (parsedData: DataProps): Promise<boolean> => {
   const storage = new Storage()
-  const storedData: DataProps[] = await storage.get(StorageKey.DATA)
+  const storedData = (await storage.get(StorageKey.DATA)) as DataProps[]
 
   const { account, issuer, secret, recoveryCodes } = parsedData
 
-  const existingEntry = storedData.find(
+  const matchedAccount = storedData.find(
     (item) =>
       item.issuer === issuer &&
       item.secret === secret &&
       item.account === account
   )
 
-  if (!existingEntry?.recoveryCodes?.length) return false
+  if (!matchedAccount || !matchedAccount.recoveryCodes?.length) {
+    return false
+  }
 
-  const newCodes = recoveryCodes.map((code) => code.value).join(",")
-  const existingCodes = existingEntry.recoveryCodes
-    .map((code) => code.value)
-    .join(",")
+  const formatCodes = (codes: { value: string }[]) =>
+    codes.map(({ value }) => value).join(",")
 
-  return newCodes === existingCodes
+  return (
+    formatCodes(matchedAccount.recoveryCodes) === formatCodes(recoveryCodes)
+  )
+}
+
+export const canInjectScript = async (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tab = tabs[0]
+      if (!tab?.id) {
+        resolve(false)
+        return
+      }
+
+      chrome.scripting.executeScript(
+        {
+          target: { tabId: tab.id },
+          func: () => true
+        },
+        (results) => {
+          if (chrome.runtime.lastError) {
+            resolve(false)
+          } else {
+            resolve(true)
+          }
+        }
+      )
+    })
+  })
+}
+
+export const createSelectionBox = (
+  startX: number,
+  startY: number,
+  zIndex = 9999
+) => {
+  const id = `github-2fa-1746025848275`
+  const className = `selection-${id}`
+  const animationName = `moveGradient-${id}`
+
+  const box = document.createElement("div")
+  Object.assign(box.style, {
+    position: "fixed",
+    top: `${startY}px`,
+    left: `${startX}px`,
+    zIndex: zIndex.toString(),
+    borderRadius: "8px",
+    pointerEvents: "none",
+    backdropFilter: "blur(2px)",
+    backgroundColor: "rgba(255, 255, 255, 0.05)"
+  })
+  box.className = className
+
+  const style = document.createElement("style")
+  style.textContent = `
+    @keyframes ${animationName} {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+
+    .${className}::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border-radius: 10px;
+      background: ${GRADIENT};
+      background-size: 400% 400%;
+      animation: ${animationName} 6s linear infinite;
+      z-index: -1;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask-composite: destination-out;
+      padding: 3px;
+    }
+  `
+  document.head.appendChild(style)
+
+  return box
 }

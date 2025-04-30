@@ -1,7 +1,7 @@
 import jsQR from "jsqr"
 import type { PlasmoCSConfig, PlasmoGetShadowHostId } from "plasmo"
 
-import { isOtpauthUrl } from "~utils"
+import { createSelectionBox, isOtpauthUrl } from "~utils"
 import { ActionKey, contentBaseZindex } from "~utils/constant"
 import message from "~utils/message"
 
@@ -57,11 +57,8 @@ const addScreenshotOverlay = (sendResponse) => {
     startX = e.clientX
     startY = e.clientY
 
-    selectionBox = document.createElement("div")
-    selectionBox.style.position = "fixed"
-    selectionBox.style.border = "2px dashed red"
-    selectionBox.style.background = "rgba(255, 0, 0, 0.2)"
-    selectionBox.style.zIndex = `${contentBaseZindex + 1}`
+    selectionBox = createSelectionBox(startX, startY, contentBaseZindex + 1)
+
     document.body.appendChild(selectionBox)
   })
 

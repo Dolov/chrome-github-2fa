@@ -6,7 +6,7 @@ import { useStorage } from "@plasmohq/storage/hook"
 
 import Button from "~components/ui/button"
 import message from "~components/ui/message"
-import { parseOtpauthUrl } from "~utils"
+import { canInjectScript, parseOtpauthUrl } from "~utils"
 import {
   ActionKey,
   DEFAULT_SETTINGS,
@@ -25,6 +25,11 @@ const Create: React.FC<CreateProps> = (props) => {
   const [visible, setVisible] = React.useState(false)
   const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const [scaning, setScaning] = React.useState(false)
+  const [scanable, setScanable] = React.useState(false)
+
+  React.useEffect(() => {
+    canInjectScript().then(setScanable)
+  }, [])
 
   const toggle = () => {
     setActive(!active)
@@ -61,10 +66,10 @@ const Create: React.FC<CreateProps> = (props) => {
   }
 
   const handleQRScanResult = (result) => {
+    if (!result) return
     const { success, data, error } = result
     if (success) {
       const parsedData = parseOtpauthUrl(data)
-      console.log("parsedData: ", parsedData)
       if (isExist(parsedData)) {
         message.warning("该 QR code 已存在。")
         return
@@ -123,7 +128,10 @@ const Create: React.FC<CreateProps> = (props) => {
             onlyLoading
             loading={scaning}
             onClick={handleQRScan}
-            className="btn btn-square btn-secondary shadow-2xl scale-75">
+            disabled={!scanable}
+            className={clsx(
+              "btn btn-square btn-secondary shadow-2xl scale-75"
+            )}>
             <QrCode />
           </Button>
         </div>
