@@ -130,28 +130,18 @@ export function extractDynamicSegment(url, template) {
   return match ? match[1] : null
 }
 
-const createGradientTextContainer = (
+export const createGradientTextContainer = (
   containerStyle?: Partial<CSSStyleDeclaration>
 ) => {
   const container = document.createElement("div")
   const textElement = document.createElement("p")
-  textElement.style.fontSize = "12px"
-  textElement.style.fontWeight = "normal"
-  textElement.style.color = "transparent"
-  textElement.style.margin = "0"
-  textElement.style.padding = "0 16px"
+  textElement.textContent = "🌈 彩虹文字 + 彩虹边框"
   container.appendChild(textElement)
 
-  container.style.flex = "1"
-  container.style.display = "flex"
-  container.style.alignItems = "center"
-  container.style.justifyContent = "center"
-  container.style.padding = "2px 0"
-  container.style.background = GRADIENT
-  container.style.webkitBackgroundClip = "text"
-  container.style.backgroundClip = "text"
-  container.style.borderImage = `${GRADIENT} 1% / 5% / 0 stretch`
+  container.classList.add("rainbow-border")
+  textElement.classList.add("rainbow-text")
 
+  // 合并用户传入的样式
   if (containerStyle) {
     for (const key in containerStyle) {
       if (containerStyle[key] !== undefined) {
@@ -159,6 +149,61 @@ const createGradientTextContainer = (
       }
     }
   }
+
+  // 插入样式，只插一次
+  if (!document.getElementById("rainbow-style")) {
+    const style = document.createElement("style")
+    style.id = "rainbow-style"
+    style.textContent = `
+      @keyframes rainbowFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .rainbow-border {
+        position: relative;
+        padding: 6px 12px;
+        background: transparent;
+        z-index: 0;
+      }
+
+      .rainbow-border::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: ${GRADIENT};
+        background-size: 300% 300%;
+        animation: rainbowFlow 6s linear infinite;
+        border-radius: 10px;
+        z-index: -1;
+        padding: 2px;
+        mask: 
+          linear-gradient(#fff 0 0) content-box, 
+          linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        -webkit-mask-composite: destination-out;
+      }
+
+      .rainbow-text {
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0;
+        padding: 0;
+        color: transparent;
+        background: ${GRADIENT};
+        background-clip: text;
+        -webkit-background-clip: text;
+        background-size: 300% 300%;
+        animation: rainbowFlow 6s ease infinite;
+      }
+    `
+    document.head.appendChild(style)
+  }
+
   return { container, textElement }
 }
 
