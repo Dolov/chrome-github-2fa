@@ -191,6 +191,7 @@ export const createGradientTextContainer = (
       .rainbow-text {
         font-size: 14px;
         font-weight: bold;
+        text-align: center;
         margin: 0;
         padding: 0;
         color: transparent;
@@ -257,7 +258,7 @@ export const startOtpMessageUpdater = (
   setInterval(() => updateOtpMessage(textElement), 1000)
 }
 
-export const displayRecoveryCodeSaveMessage = (
+export const displayRecoveryCodeSaveMessage = async (
   element,
   parsedData: DataProps,
   options?: {
@@ -269,17 +270,19 @@ export const displayRecoveryCodeSaveMessage = (
 
   element.insertAdjacentElement("afterend", container)
 
-  const saved = isRecoveryCodeSaved(parsedData)
+  const saved = await isRecoveryCodeSaved(parsedData)
+  const savedText = "恢复码已成功保存到 github-2fa 扩展"
   if (saved) {
-    textElement.textContent = "恢复码已保存"
+    textElement.textContent = savedText
     return
   }
 
   const { account, issuer } = parsedData
-  textElement.textContent = `点击保存 ${issuer} - ${account} 的恢复码到 github-2fa 扩展中`
+  textElement.textContent = `点击将 ${issuer} - ${account} 的恢复码保存到 github-2fa 扩展`
   textElement.style.cursor = "pointer"
-  container.addEventListener("click", () => {
-    save2faToStorage(parsedData)
+  container.addEventListener("click", async () => {
+    await save2faToStorage(parsedData)
+    textElement.textContent = savedText
   })
 }
 
