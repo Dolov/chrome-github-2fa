@@ -56,16 +56,17 @@ export enum Issuers {
   GITHUB = "GitHub"
 }
 
-export const GRADIENT =
-  "linear-gradient(to right, \
-    #422ad5,   /* 靛蓝 */\
-    #00bafe,   /* 湖蓝 */\
-    #00d3bb,   /* 青绿 */\
-    #00d390,   /* 草绿 */\
-    #fcb700,   /* 金黄 */\
-    #f43098,   /* 玫红 */\
-    #ff637d    /* 粉红 */\
-    )"
+export const COLORS = [
+  "#422ad5", // 靛蓝
+  "#00bafe", // 湖蓝
+  "#00d3bb", // 青绿
+  "#00d390", // 草绿
+  "#fcb700", // 金黄
+  "#f43098", // 玫红
+  "#ff637d" // 粉红
+]
+
+export const GRADIENT = `linear-gradient(to right, ${COLORS.join(", ")})`
 
 // otpauth://totp/GitHub:acloudfly?secret=N2CNXSJV7LG75BUI&issuer=GitHub
 

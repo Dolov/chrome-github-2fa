@@ -3,7 +3,7 @@ import { authenticator } from "otplib"
 
 import { Storage } from "@plasmohq/storage"
 
-import { GRADIENT, StorageKey, type DataProps } from "~utils/constant"
+import { COLORS, GRADIENT, StorageKey, type DataProps } from "~utils/constant"
 
 import message from "./message"
 
@@ -271,7 +271,8 @@ export const displayRecoveryCodeSaveMessage = async (
   element.insertAdjacentElement("afterend", container)
 
   const saved = await isRecoveryCodeSaved(parsedData)
-  const savedText = "恢复码已成功保存到 github-2fa 扩展"
+  const savedText = `恢复码已成功保存到 github-2fa 扩展`
+
   if (saved) {
     textElement.textContent = savedText
     return
@@ -417,28 +418,19 @@ export const readQRCodeFromImage = (img: HTMLImageElement): Promise<string> => {
 }
 
 export const highlightElement = (element: HTMLElement) => {
-  const colors = [
-    "#4a00ff",
-    "#ff00d3",
-    "#00b6ff",
-    "#00a96e",
-    "#ffbe00",
-    "#ff5861"
-  ]
-
   let index = 0
   let count = 0
-  const maxBlinks = 6
+  const maxBlinks = COLORS.length
 
   const pulse = () => {
-    const color = colors[index]
+    const color = COLORS[index]
     element.style.boxShadow = `0 0 20px 8px ${color}`
     element.style.transform = "scale(1.05)"
     element.style.opacity = "0.9"
     element.style.transition =
       "box-shadow 0.3s ease, transform 0.3s ease, opacity 0.3s ease"
 
-    index = (index + 1) % colors.length
+    index = (index + 1) % COLORS.length
     count++
 
     setTimeout(() => {

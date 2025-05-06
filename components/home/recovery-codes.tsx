@@ -5,7 +5,7 @@ import React, { useState } from "react"
 import Modal from "~components/ui/modal"
 import { type DataProps } from "~utils/constant"
 import { useUpdateCopiedCodeStatus } from "~utils/hooks"
-import { copyTextToClipboard, updateCopiedCodeStatus } from "~utils/index"
+import { copyTextToClipboard } from "~utils/index"
 
 import { useModalWidth } from "./hooks"
 
@@ -62,7 +62,9 @@ const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
               </span>
               <CopyIcon
                 size={14}
-                className="ml-2 cursor-pointer shrink-0 hover:text-white/80 active:scale-95 transition"
+                className={clsx("ml-2 shrink-0 transition", {
+                  "hover:text-white/80 cursor-pointer active:scale-95": !copied
+                })}
               />
             </div>
           )

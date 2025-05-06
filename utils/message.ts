@@ -33,10 +33,10 @@ function showMessage(type, text, duration) {
   message.style.zIndex = `${contentBaseZindex + 1}`
 
   const colors = {
-    success: "#4CAF50",
-    error: "#F44336",
+    info: "#2196F3",
     warn: "#FFC107",
-    info: "#2196F3"
+    error: "#F44336",
+    success: "#4CAF50"
   }
 
   message.style.backgroundColor = colors[type] || "#333"
