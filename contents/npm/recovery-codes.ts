@@ -3,7 +3,7 @@ import type { PlasmoCSConfig } from "plasmo"
 import {
   displayRecoveryCodeSaveMessage,
   extractDynamicSegment,
-  get2faListFromStorage
+  getOTPList
 } from "~utils"
 import { Issuers } from "~utils/constant"
 
@@ -18,7 +18,7 @@ const init = async () => {
     "/settings/*/recovery-codes"
   )
   if (!account) return
-  const data = await get2faListFromStorage(Issuers.NPM, account)
+  const data = await getOTPList(Issuers.NPM, account)
   if (data.length === 0) return
   const container = document.querySelector(
     'div[role="button"][tabindex="0"]'
@@ -45,5 +45,3 @@ const init = async () => {
 }
 
 init()
-
-export {}

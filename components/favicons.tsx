@@ -24,7 +24,7 @@ import {
   SkillIconsInstagram,
   VscodeIconsFileTypeOutlook
 } from "~components/ui/icon"
-import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
+import { DEFAULT_SETTINGS, Issuers, StorageKey } from "~utils/constant"
 
 export const minimalIconMap: Record<
   string,
@@ -55,9 +55,10 @@ export const elegantImageMap: Record<string, string> = {
   cloudflare
 }
 
-const Favicon = ({ vendor }: { vendor: string }) => {
+const Favicon = ({ issuer }: { issuer: string }) => {
   const [settings] = useStorage(StorageKey.SETTINGS, DEFAULT_SETTINGS)
   const minimal = settings.faviconType === "minimal"
+  const vendor = issuer.toLowerCase()
   const Icon = minimalIconMap[vendor]
 
   if (minimal) {

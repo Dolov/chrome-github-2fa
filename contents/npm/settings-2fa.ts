@@ -1,10 +1,11 @@
 import type { PlasmoCSConfig } from "plasmo"
 
+import message from "~/utils/message"
 import {
   extractDynamicSegment,
   highlightElement,
-  parseOtpauthUrl,
-  save2faToStorage,
+  parseOtpAuthUrl,
+  saveOTP,
   startOtpMessageUpdater,
   waitForPathMatchStrict
 } from "~utils"
@@ -14,24 +15,27 @@ import { scanQRCode } from "../qr-parse/auto"
 export const config: PlasmoCSConfig = {
   matches: [
     "https://www.npmjs.com/settings/*/tfa",
+    "https://www.npmjs.com/settings/*/tfa/list",
+    // replace
     "https://www.npmjs.com/settings/*/tfa/manageTfa?action=setup-totp"
   ],
   all_frames: false
 }
 
 const init = async () => {
-  const path = await waitForPathMatchStrict({
+  const href = await waitForPathMatchStrict({
     endsWith: [
       "/settings/*/tfa/",
       "/settings/*/tfa/manageTfa?action=setup-totp"
     ]
   })
+  if (!href) return
   const result = await scanQRCode()
   if (!result) return
   const { data, element } = result
   highlightElement(element)
-  const parsedData = parseOtpauthUrl(data)
-  const account = extractDynamicSegment(path, "/settings/*/tfa/")
+  const parsedData = parseOtpAuthUrl(data)
+  const account = extractDynamicSegment(href, "/settings/*/tfa/")
   const input = document.querySelector(
     "input[id='enable_otp']"
   ) as HTMLInputElement
@@ -46,16 +50,15 @@ const init = async () => {
   ) as HTMLButtonElement
   if (!submitButton) return
 
-  submitButton.addEventListener("click", () => {
+  submitButton.addEventListener("click", async () => {
     if (!input.value) return
-    save2faToStorage({
+    await saveOTP({
       ...parsedData,
-      id: Date.now().toString(),
-      account
+      account,
+      id: Date.now().toString()
     })
+    message.success("添加成功")
   })
 }
 
 init()
-
-export {}

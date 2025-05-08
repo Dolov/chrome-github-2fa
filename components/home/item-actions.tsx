@@ -13,7 +13,7 @@ import { encodeData, QRDsj } from "react-qrbtf"
 import { useStorage } from "@plasmohq/storage/hook"
 
 import Modal from "~components/ui/modal"
-import { generateOtpauthUrl } from "~utils"
+import { generateOtpAuthUrl } from "~utils"
 import { StorageKey, type DataProps } from "~utils/constant"
 
 import OptForm from "./otp-form"
@@ -89,7 +89,7 @@ const ItemActions: React.FC<{
   if (!visible) return null
 
   const { pinned, account, issuer } = itemData
-  const url = generateOtpauthUrl(itemData)
+  const url = generateOtpAuthUrl(itemData)
   return (
     <div
       onClick={handleMaskClick}

@@ -11,11 +11,11 @@ import OtpText from "~components/otp-text"
 import message from "~components/ui/message"
 import {
   copyTextToClipboard,
-  getOtp,
-  getProcessColor,
-  getTimeRemaining
+  generateOtp,
+  getProgressColor,
+  getRemainingTime
 } from "~utils"
-import { DEFAULT_SETTINGS, StorageKey } from "~utils/constant"
+import { StorageKey } from "~utils/constant"
 
 import ItemActions from "./item-actions"
 
@@ -46,8 +46,7 @@ interface ListItemProps {
 
 const ListItem: React.FC<ListItemProps> = (props) => {
   const { data } = props
-  const { id, type, pinned, issuer, secret, account } = data
-  const vendor = issuer.toLocaleLowerCase()
+  const { pinned, issuer, secret, account } = data
   const [otp, setOtp] = React.useState("")
   const [nextOtp, setNextOtp] = React.useState("")
   const [actionVisible, setActionVisible] = React.useState(false)
@@ -66,9 +65,9 @@ const ListItem: React.FC<ListItemProps> = (props) => {
   }, [])
 
   const calcOTP = () => {
-    const otp = getOtp(secret)
-    const nextOtp = getOtp(secret, true)
-    const timeRemaining = getTimeRemaining()
+    const otp = generateOtp(secret)
+    const nextOtp = generateOtp(secret, true)
+    const timeRemaining = getRemainingTime()
 
     setOtp(otp)
     setNextOtp(nextOtp)
@@ -80,7 +79,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
     message.success(`复制成功`)
   }
 
-  const color = getProcessColor(timeRemaining)
+  const color = getProgressColor(timeRemaining)
   return (
     <div
       onClick={handleCopy}
@@ -115,7 +114,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
               <FileCog size={16} />
             </button>
           </div>
-          <Favicon vendor={vendor} />
+          <Favicon issuer={issuer} />
         </div>
         <div className="base-content font-medium -translate-y-[2px]">
           {account}

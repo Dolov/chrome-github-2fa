@@ -6,7 +6,6 @@ import { useStorage } from "@plasmohq/storage/hook"
 import Modal from "~components/ui/modal"
 import { StorageKey, type DataProps } from "~utils/constant"
 
-import { GlobalContext } from "./context"
 import { useModalWidth } from "./hooks"
 
 const defaultForm = {
@@ -57,7 +56,7 @@ const OtpForm: React.FC<{
         account,
         remark
       }
-      setData([...data, item])
+      setData([...data, item as DataProps])
     }
     onClose()
     setForm(defaultForm)

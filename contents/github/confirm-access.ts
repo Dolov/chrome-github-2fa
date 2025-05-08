@@ -1,10 +1,6 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import {
-  get2faListFromStorage,
-  startOtpMessageUpdater,
-  waitForElement
-} from "~utils"
+import { getOTPList, startOtpMessageUpdater, waitForElement } from "~utils"
 import { Issuers } from "~utils/constant"
 
 import { getGitHubUserName } from "./utils"
@@ -21,7 +17,7 @@ export const waitConfirmAccess = async () => {
   )
   const account = getGitHubUserName()
   const issuer = Issuers.GITHUB
-  const data = await get2faListFromStorage(issuer, account)
+  const data = await getOTPList(issuer, account)
   if (data.length === 0) return
   startOtpMessageUpdater(input, data[0].secret, {
     style: {

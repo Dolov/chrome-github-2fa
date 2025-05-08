@@ -2,7 +2,7 @@ import jsQR from "jsqr"
 import type { PlasmoCSConfig, PlasmoGetShadowHostId } from "plasmo"
 
 import { highlightElement } from "~utils"
-import { ActionKey } from "~utils/constant"
+import { ActionType } from "~utils/constant"
 
 const containerId = "github-2fa-container-1742783738736"
 export const getShadowHostId: PlasmoGetShadowHostId = () => containerId
@@ -14,7 +14,7 @@ export const config: PlasmoCSConfig = {
 
 // 监听消息并确保发送响应
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === ActionKey.AUTOSCAN) {
+  if (message.action === ActionType.AUTOSCAN) {
     scanQRCode()
       .then((result) => {
         highlightElement(result.element)
@@ -38,7 +38,9 @@ const scanQRCode = async (): Promise<{
     try {
       const data = await readQRCodeFromCanvas(canvas)
       return { data, element: canvas }
-    } catch (error) {}
+    } catch (error) {
+      // console.error("解析二维码失败", error)
+    }
   }
 
   const images = Array.from(document.querySelectorAll("img"))
@@ -46,7 +48,9 @@ const scanQRCode = async (): Promise<{
     try {
       const data = await readQRCodeFromImage(img)
       return { data, element: img }
-    } catch (error) {}
+    } catch (error) {
+      // console.error("解析二维码失败", error)
+    }
   }
 
   throw new Error("未找到有效的二维码")

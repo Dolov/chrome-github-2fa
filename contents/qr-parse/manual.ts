@@ -1,8 +1,8 @@
 import jsQR from "jsqr"
 import type { PlasmoCSConfig, PlasmoGetShadowHostId } from "plasmo"
 
-import { createSelectionBox, isOtpauthUrl } from "~utils"
-import { ActionKey, contentBaseZindex } from "~utils/constant"
+import { createSelectionBox, isOtpAuthUrl } from "~utils"
+import { ActionType, contentBaseZindex } from "~utils/constant"
 import message from "~utils/message"
 
 const containerId = "github-2fa-container-1742783738736"
@@ -15,7 +15,7 @@ export const config: PlasmoCSConfig = {
 
 // 监听消息并确保发送响应
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === ActionKey.MANUAL_SCREENSHOT) {
+  if (message.action === ActionType.MANUAL_SCREENSHOT) {
     addScreenshotOverlay(sendResponse)
   }
 
@@ -78,7 +78,7 @@ const addScreenshotOverlay = (sendResponse) => {
     dismissAll()
 
     chrome.runtime.sendMessage(
-      { action: ActionKey.CAPTURE_SCREENSHOT },
+      { action: ActionType.CAPTURE_SCREENSHOT },
       async (response) => {
         if (!response.success) {
           message.error("截图失败")
@@ -95,7 +95,7 @@ const addScreenshotOverlay = (sendResponse) => {
           message.error(`解析二维码失败：${error.message}`)
         })
         if (!qrData) return
-        const available = isOtpauthUrl(qrData)
+        const available = isOtpAuthUrl(qrData)
         if (!available) {
           message.warn(
             `检测到二维码，但其格式【${qrData}】不符合 OTPAuth 规范`,

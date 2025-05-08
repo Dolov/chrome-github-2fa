@@ -2,10 +2,10 @@ import type { PlasmoCSConfig } from "plasmo"
 
 import {
   highlightElement,
-  isOtpauthUrl,
-  parseOtpauthUrl,
+  isOtpAuthUrl,
+  parseOtpAuthUrl,
   readQRCodeFromImage,
-  save2faToStorage,
+  saveOTP,
   startOtpMessageUpdater,
   waitForElement
 } from "~utils"
@@ -40,7 +40,7 @@ export const waitQRCodeImage = async () => {
   saveButton.addEventListener("click", async (e) => {
     if (!parsedData) return
 
-    await save2faToStorage({
+    await saveOTP({
       ...parsedData,
       id: Date.now().toString()
     })
@@ -51,11 +51,11 @@ const parseImage2faUrl = async (
   qrImg: HTMLImageElement
 ): Promise<Omit<DataProps, "id"> | null> => {
   const url = await readQRCodeFromImage(qrImg)
-  if (!isOtpauthUrl(url)) return null
+  if (!isOtpAuthUrl(url)) return null
 
   highlightElement(qrImg)
 
-  const parsedData = parseOtpauthUrl(url)
+  const parsedData = parseOtpAuthUrl(url)
   const { secret } = parsedData
 
   const input = document.querySelector<HTMLInputElement>(

@@ -3,17 +3,17 @@ import { contentBaseZindex } from "./constant"
 const baseDuration = 3000
 
 const message = {
-  success(text, duration = baseDuration) {
-    return showMessage("success", text, duration)
-  },
-  error(text, duration = baseDuration) {
-    return showMessage("error", text, duration)
-  },
   warn(text, duration = baseDuration) {
     return showMessage("warn", text, duration)
   },
   info(text, duration = baseDuration) {
     return showMessage("info", text, duration)
+  },
+  error(text, duration = baseDuration) {
+    return showMessage("error", text, duration)
+  },
+  success(text, duration = baseDuration) {
+    return showMessage("success", text, duration)
   }
 }
 
@@ -45,8 +45,8 @@ function showMessage(type, text, duration) {
   document.body.appendChild(message)
 
   setTimeout(() => {
-    message.style.transform = "translateX(0)"
     message.style.opacity = "1"
+    message.style.transform = "translateX(0)"
   }, 10)
 
   const destroy = () => {

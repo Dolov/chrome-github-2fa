@@ -6,13 +6,8 @@ import { useStorage } from "@plasmohq/storage/hook"
 
 import Button from "~components/ui/button"
 import message from "~components/ui/message"
-import { canInjectScript, parseOtpauthUrl } from "~utils"
-import {
-  ActionKey,
-  DEFAULT_SETTINGS,
-  StorageKey,
-  type DataProps
-} from "~utils/constant"
+import { canInjectContentScript, parseOtpAuthUrl } from "~utils"
+import { ActionType, StorageKey, type DataProps } from "~utils/constant"
 
 import { GlobalContext } from "./context"
 import OptForm from "./otp-form"
@@ -28,7 +23,7 @@ const Create: React.FC<CreateProps> = (props) => {
   const [scanable, setScanable] = React.useState(false)
 
   React.useEffect(() => {
-    canInjectScript().then(setScanable)
+    canInjectContentScript().then(setScanable)
   }, [])
 
   const toggle = () => {
@@ -58,7 +53,7 @@ const Create: React.FC<CreateProps> = (props) => {
       chrome.tabs.sendMessage(
         tabs[0].id,
         {
-          action: ActionKey.AUTOSCAN
+          action: ActionType.AUTOSCAN
         },
         handleQRScanResult
       )
@@ -69,12 +64,12 @@ const Create: React.FC<CreateProps> = (props) => {
     if (!result) return
     const { success, data, error } = result
     if (success) {
-      const parsedData = parseOtpauthUrl(data)
+      const parsedData = parseOtpAuthUrl(data)
       if (isExist(parsedData)) {
         message.warning("该 QR code 已存在。")
         return
       }
-      const nextData = [
+      const nextData: DataProps[] = [
         ...dataList,
         {
           id: `${Date.now()}`,
@@ -94,7 +89,7 @@ const Create: React.FC<CreateProps> = (props) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length === 0) return
       chrome.tabs.sendMessage(tabs[0].id, {
-        action: ActionKey.MANUAL_SCREENSHOT
+        action: ActionType.MANUAL_SCREENSHOT
       })
       window.close()
     })

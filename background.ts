@@ -1,6 +1,6 @@
 import { Storage } from "@plasmohq/storage"
 
-import { ActionKey, StorageKey } from "~utils/constant"
+import { ActionType, StorageKey } from "~utils/constant"
 
 /** 定义右键菜单列表 */
 const menuList: (chrome.contextMenus.CreateProperties & {
@@ -55,8 +55,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 export {}
 
+// 监听来自 content script 的消息，进行截图，并返回截图结果，让 content script 获取对应区域的二维码
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === ActionKey.CAPTURE_SCREENSHOT) {
+  if (message.action === ActionType.CAPTURE_SCREENSHOT) {
     chrome.tabs.captureVisibleTab(null, { format: "png" }, (dataUrl) => {
       sendResponse({ success: !!dataUrl, image: dataUrl })
     })
@@ -64,6 +65,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 })
 
+// 将 v1 版本的数据迁移到新数据格式
 const adptLegacyData = async () => {
   const storage = new Storage()
   const data = await storage.get(StorageKey.DATA)
@@ -73,26 +75,44 @@ const adptLegacyData = async () => {
   if (!legacyData) return
   const keys = Object.keys(legacyData)
   if (!keys.length) return
-  const list = keys.map((key) => {
-    const item = legacyData[key]
-    const { account, issuer, secret } = item
-    const recoveryCodes = item.recoveryCodes || []
-    return {
-      issuer,
-      secret,
-      account,
-      id: `${key}-${Date.now()}`,
-      type: "totp",
-      recoveryCodes: recoveryCodes.map((item) => {
-        const { value, copyed } = item
-        return {
-          value,
-          copied: copyed
-        }
-      })
+  const list = keys
+    .map((key) => {
+      const item = legacyData[key]
+      // 需要检查必要字段是否存在
+      if (!item?.secret || !item?.issuer || !item?.account) {
+        return null
+      }
+      const { account, issuer, secret } = item
+      const recoveryCodes = Array.isArray(item.recoveryCodes)
+        ? item.recoveryCodes
+        : []
+      return {
+        issuer,
+        secret,
+        account,
+        id: `${key}-${Date.now()}`, // 多个数据同时迁移时可能会有重复ID的问题
+        type: "totp",
+        recoveryCodes: recoveryCodes
+          .map((code) => {
+            if (!code?.value) return null
+            const { value, copyed } = code
+            return {
+              value,
+              copied: !!copyed // 确保是布尔值
+            }
+          })
+          .filter(Boolean) // 过滤掉无效的恢复码
+      }
+    })
+    .filter(Boolean) // 过滤掉无效的数据项
+
+  if (list.length) {
+    try {
+      await storage.set(StorageKey.DATA, list)
+    } catch (error) {
+      console.error("Legacy data migration failed:", error)
     }
-  })
-  await storage.set(StorageKey.DATA, list)
+  }
 }
 
 adptLegacyData()

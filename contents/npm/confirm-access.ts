@@ -2,25 +2,27 @@ import type { PlasmoCSConfig } from "plasmo"
 
 import {
   extractDynamicSegment,
-  get2faListFromStorage,
+  getOTPList,
+  Issuers,
   startOtpMessageUpdater,
   waitForElement
 } from "~utils"
-import { Issuers } from "~utils/constant"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://www.npmjs.com/*"],
   all_frames: false
 }
 
-export const waitConfirmAccess = async () => {
-  const input = await waitForElement<HTMLInputElement>(
-    "input[id=login_otp]",
-    false
-  )
-  const account = extractDynamicSegment(location.href, "/settings/*/tfa/")
+// https://www.npmjs.com/login/otp?next=%2Fsettings%2Fshisongyan%2Ftfa%2Flist
+
+const waitConfirmAccess = async () => {
+  const input = await waitForElement<HTMLInputElement>("input[id=login_otp]")
+  const account = extractDynamicSegment(decodeURIComponent(location.href), [
+    "/settings/*/tfa"
+  ])
+  if (!account) return
   const issuer = Issuers.NPM
-  const data = await get2faListFromStorage(issuer, account)
+  const data = await getOTPList(issuer, account)
   if (data.length === 0) return
   startOtpMessageUpdater(input, data[0].secret, {
     style: {

@@ -31,7 +31,7 @@ export const DEFAULT_SETTINGS: {
   containerType: ContainerType.DEFAULT
 }
 
-export enum ActionKey {
+export enum ActionType {
   AUTOSCAN = "AUTOSCAN",
   MANUAL_SCREENSHOT = "MANUAL_SCREENSHOT",
   CAPTURE_SCREENSHOT = "CAPTURE_SCREENSHOT"
@@ -39,7 +39,7 @@ export enum ActionKey {
 
 export interface DataProps {
   id: string
-  type: string
+  type: "totp" | "hotp"
   issuer: string
   secret: string
   account: string

@@ -2,7 +2,7 @@ import type { PlasmoCSConfig } from "plasmo"
 
 import {
   displayRecoveryCodeSaveMessage,
-  get2faListFromStorage,
+  getOTPList,
   waitForElement
 } from "~utils"
 import { Issuers } from "~utils/constant"
@@ -19,7 +19,7 @@ export const config: PlasmoCSConfig = {
 
 const saveRecoveryCodes = async () => {
   const account = getGitHubUserName()
-  const data = await get2faListFromStorage(Issuers.GITHUB, account)
+  const data = await getOTPList(Issuers.GITHUB, account)
   if (data.length === 0) return
   const ul = await waitForElement<HTMLImageElement>(
     `ul.two-factor-recovery-codes`

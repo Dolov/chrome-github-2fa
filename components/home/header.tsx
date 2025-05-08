@@ -2,8 +2,6 @@ import clsx from "clsx"
 import { Menu, Search } from "lucide-react"
 import React from "react"
 
-import { DEFAULT_SETTINGS } from "~utils/constant"
-
 import { GlobalContext } from "./context"
 
 interface HeaderProps {}
