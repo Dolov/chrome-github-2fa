@@ -18,7 +18,8 @@ export const config: PlasmoCSConfig = {
 const waitConfirmAccess = async () => {
   const input = await waitForElement<HTMLInputElement>("input[id=login_otp]")
   const account = extractDynamicSegment(decodeURIComponent(location.href), [
-    "/settings/*/tfa"
+    "/settings/*/tfa",
+    "/settings/*/recovery-codes"
   ])
   if (!account) return
   const issuer = Issuers.NPM
@@ -26,7 +27,8 @@ const waitConfirmAccess = async () => {
   if (data.length === 0) return
   startOtpMessageUpdater(input, data[0].secret, {
     style: {
-      marginBottom: "16px"
+      marginTop: "6px",
+      marginBottom: "8px"
     }
   })
 }
