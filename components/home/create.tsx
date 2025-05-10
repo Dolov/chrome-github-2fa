@@ -1,5 +1,11 @@
 import clsx from "clsx"
-import { Keyboard, Plus, QrCode } from "lucide-react"
+import {
+  ImageUp,
+  Keyboard,
+  Plus,
+  QrCode,
+  SquareDashedMousePointer
+} from "lucide-react"
 import React from "react"
 
 import { useStorage } from "@plasmohq/storage/hook"
@@ -46,7 +52,7 @@ const Create: React.FC<CreateProps> = (props) => {
     })
   }
 
-  const handleQRScan = () => {
+  const handleAutoScan = () => {
     // 发送消息给 content.js
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length === 0) return
@@ -86,10 +92,21 @@ const Create: React.FC<CreateProps> = (props) => {
       return
     }
     // 无法自动识别二维码，开启手动截图模式
+    const messageText = "未检测到二维码，开启手动截图模式，ESC 退出"
+    sendManualScanMessage(messageText)
+  }
+
+  const handleManualScan = () => {
+    const messageText = "手动截图模式，ESC 退出"
+    sendManualScanMessage(messageText)
+  }
+
+  const sendManualScanMessage = (messageText: string) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length === 0) return
       chrome.tabs.sendMessage(tabs[0].id, {
-        action: ActionType.MANUAL_SCREENSHOT
+        action: ActionType.MANUAL_SCREENSHOT,
+        message: messageText
       })
       window.close()
     })
@@ -112,22 +129,41 @@ const Create: React.FC<CreateProps> = (props) => {
           data-tip="手动输入详细信息">
           <button
             onClick={() => setVisible(true)}
-            className="btn btn-square btn-accent shadow-2xl scale-75">
+            className="btn btn-square btn-secondary shadow-2xl scale-75">
             <Keyboard />
           </button>
         </div>
         <div
           className="tooltip tooltip-open tooltip-left before:py-2"
-          data-tip="扫描二维码">
+          data-tip="自动扫描二维码">
           <Button
             onlyLoading
             loading={scaning}
-            onClick={handleQRScan}
+            onClick={handleAutoScan}
             disabled={!scanable}
-            className={clsx(
-              "btn btn-square btn-secondary shadow-2xl scale-75"
-            )}>
+            className={clsx("btn btn-square btn-accent shadow-2xl scale-75")}>
             <QrCode />
+          </Button>
+        </div>
+        <div
+          className="tooltip tooltip-open tooltip-left before:py-2"
+          data-tip="手动截取二维码">
+          <Button
+            onlyLoading
+            onClick={handleManualScan}
+            disabled={!scanable}
+            className={clsx("btn btn-square btn-info shadow-2xl scale-75")}>
+            <SquareDashedMousePointer />
+          </Button>
+        </div>
+        <div
+          className="tooltip tooltip-open tooltip-left before:py-2"
+          data-tip="上传二维码">
+          <Button
+            onlyLoading
+            onClick={() => {}}
+            className={clsx("btn btn-square btn-warning shadow-2xl scale-75")}>
+            <ImageUp />
           </Button>
         </div>
       </div>

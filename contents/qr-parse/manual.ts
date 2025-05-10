@@ -16,14 +16,14 @@ export const config: PlasmoCSConfig = {
 // 监听消息并确保发送响应
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === ActionType.MANUAL_SCREENSHOT) {
-    addScreenshotOverlay(sendResponse)
+    addScreenshotOverlay(sendResponse, message.message)
   }
 
   return true
 })
 
 // 🎯 选取截图区域
-const addScreenshotOverlay = (sendResponse) => {
+const addScreenshotOverlay = (sendResponse, messageText) => {
   const overlay = document.createElement("div")
   overlay.style.position = "fixed"
   overlay.style.top = "0"
@@ -35,7 +35,7 @@ const addScreenshotOverlay = (sendResponse) => {
   overlay.style.cursor = "crosshair"
   document.body.appendChild(overlay)
 
-  const messageVm = message.info("未检测到二维码，开启手动截图模式", 20000)
+  const messageVm = message.info(messageText, 60000)
 
   const handleEsc = (e) => {
     if (e.key !== "Escape") return
@@ -52,18 +52,26 @@ const addScreenshotOverlay = (sendResponse) => {
   }
 
   let startX, startY, endX, endY, selectionBox
+  let isMouseDown = false
 
   overlay.addEventListener("mousedown", (e) => {
     startX = e.clientX
     startY = e.clientY
+    isMouseDown = true
 
-    selectionBox = createSelectionBox(startX, startY, contentBaseZindex + 1)
+    const box = createSelectionBox(startX, startY, contentBaseZindex + 1)
 
+    if (selectionBox) {
+      selectionBox.remove()
+      selectionBox = null
+    }
+    selectionBox = box.element
     document.body.appendChild(selectionBox)
+    document.addEventListener("mousemove", handleMouseMove)
   })
 
   const handleMouseMove = (e) => {
-    if (!selectionBox) return
+    if (!selectionBox || !isMouseDown) return
     endX = e.clientX
     endY = e.clientY
 
@@ -74,8 +82,9 @@ const addScreenshotOverlay = (sendResponse) => {
   }
 
   const handleMouseUp = (e) => {
+    isMouseDown = false
+    document.removeEventListener("mousemove", handleMouseMove)
     if (!selectionBox) return
-    dismissAll()
 
     chrome.runtime.sendMessage(
       { action: ActionType.CAPTURE_SCREENSHOT },
@@ -103,6 +112,7 @@ const addScreenshotOverlay = (sendResponse) => {
           )
           return
         }
+        dismissAll()
         message.success("二维码解析成功")
       }
     )
@@ -110,7 +120,6 @@ const addScreenshotOverlay = (sendResponse) => {
 
   document.addEventListener("keydown", handleEsc)
   document.addEventListener("mouseup", handleMouseUp)
-  document.addEventListener("mousemove", handleMouseMove)
 }
 
 // 🎯 裁剪截图并解析二维码
