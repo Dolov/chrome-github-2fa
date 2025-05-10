@@ -19,6 +19,7 @@ export const saveOTP = async (otpData: DataProps) => {
 
   const sameItemIndex = existingData.findIndex(
     (item) =>
+      !item.deleted &&
       item.type === otpData.type &&
       item.issuer === otpData.issuer &&
       item.secret === otpData.secret &&
@@ -35,6 +36,7 @@ export const saveOTP = async (otpData: DataProps) => {
 
   const oldItemIndex = existingData.findIndex(
     (item) =>
+      !item.deleted &&
       item.type === otpData.type &&
       item.issuer === otpData.issuer &&
       item.account === otpData.account
@@ -59,6 +61,7 @@ export const getOTPList = async (
 
   return data.filter(
     (item) =>
+      !item.deleted &&
       item.account === account &&
       item.issuer.toLowerCase() === issuer.toLowerCase()
   )

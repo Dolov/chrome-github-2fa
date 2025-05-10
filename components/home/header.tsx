@@ -1,5 +1,5 @@
 import clsx from "clsx"
-import { Menu, Search } from "lucide-react"
+import { Menu, Search, Trash } from "lucide-react"
 import React from "react"
 
 import { useStorage } from "@plasmohq/storage/hook"
@@ -21,6 +21,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   const deletedCount = data.filter((item) => item.deleted).length
   const normalCount = data.filter((item) => !item.deleted).length
+  const icon = filter === "deleted" ? <Trash /> : <Menu />
 
   return (
     <div
@@ -29,17 +30,14 @@ const Header: React.FC<HeaderProps> = (props) => {
       })}>
       <div className="dropdown dropdown-hover">
         <div
-          tabIndex={0}
           role="button"
+          tabIndex={0}
           className="btn btn-ghost btn-sm btn-circle">
-          <Menu />
+          {icon}
         </div>
         <ul
           tabIndex={0}
           className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-          <li>
-            <a onClick={goSettings}>设置</a>
-          </li>
           {filter === "deleted" && (
             <li>
               <a onClick={() => setFilter("normal")}>
@@ -56,6 +54,9 @@ const Header: React.FC<HeaderProps> = (props) => {
               </a>
             </li>
           )}
+          <li>
+            <a onClick={goSettings}>设置</a>
+          </li>
         </ul>
       </div>
       <div className="text-2xl font-bold">Github 2FA</div>
