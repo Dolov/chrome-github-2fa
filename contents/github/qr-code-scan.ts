@@ -10,6 +10,7 @@ import {
   waitForElement
 } from "~utils"
 import { type DataProps } from "~utils/constant"
+import message from "~utils/message"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://github.com/*"],
@@ -44,6 +45,7 @@ export const waitQRCodeImage = async () => {
       ...parsedData,
       id: Date.now().toString()
     })
+    message.success("添加成功")
   })
 }
 

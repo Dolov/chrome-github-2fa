@@ -17,22 +17,33 @@ import {
 } from "~utils"
 import { StorageKey } from "~utils/constant"
 
+import { GlobalContext } from "./context"
 import ItemActions from "./item-actions"
 
 interface ListProps {}
 
 const List: React.FC<ListProps> = (props) => {
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const { filter } = React.useContext(GlobalContext)
+
+  const filteredData = React.useMemo(() => {
+    return data.filter((item) => {
+      if (filter === "deleted") {
+        return item.deleted
+      }
+      return !item.deleted
+    })
+  }, [data, filter])
 
   return (
     <div className="flex-1 overflow-auto px-4">
-      {data.length === 0 && (
+      {filteredData.length === 0 && (
         <img
           src={noData}
           className="mt-14 w-full transition-transform duration-700 ease-in-out animate-pulse hover:scale-105"
         />
       )}
-      {data.map((item) => {
+      {filteredData.map((item) => {
         const { id } = item
         return <ListItem key={id} data={item} />
       })}

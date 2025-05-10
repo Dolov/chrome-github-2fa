@@ -17,8 +17,7 @@ export const saveOTP = async (otpData: DataProps) => {
   }
   const existingData = (await storage.get<DataProps[]>(StorageKey.DATA)) || []
 
-  // Check if an entry with the same issuer and account exists
-  const existingIndex = existingData.findIndex(
+  const sameItemIndex = existingData.findIndex(
     (item) =>
       item.type === otpData.type &&
       item.issuer === otpData.issuer &&
@@ -26,19 +25,29 @@ export const saveOTP = async (otpData: DataProps) => {
       item.account === otpData.account
   )
 
-  if (existingIndex !== -1) {
-    // Update existing entry
-    existingData[existingIndex] = {
-      ...existingData[existingIndex],
+  if (sameItemIndex !== -1) {
+    existingData[sameItemIndex] = {
+      ...existingData[sameItemIndex],
       ...otpData
     }
-  } else {
-    // Add new entry
-    existingData.push(otpData)
+    return await storage.set(StorageKey.DATA, existingData)
   }
 
-  await storage.set(StorageKey.DATA, existingData)
-  return existingData
+  const oldItemIndex = existingData.findIndex(
+    (item) =>
+      item.type === otpData.type &&
+      item.issuer === otpData.issuer &&
+      item.account === otpData.account
+  )
+
+  if (oldItemIndex !== -1) {
+    existingData[oldItemIndex].deleted = true
+    existingData.push(otpData)
+    return await storage.set(StorageKey.DATA, existingData)
+  }
+
+  existingData.push(otpData)
+  return await storage.set(StorageKey.DATA, existingData)
 }
 
 export const getOTPList = async (

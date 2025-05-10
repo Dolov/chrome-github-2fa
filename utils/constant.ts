@@ -45,6 +45,7 @@ export interface DataProps {
   account: string
   pinned?: boolean
   remark?: string
+  deleted?: boolean
   recoveryCodes?: {
     value: string
     copied: boolean

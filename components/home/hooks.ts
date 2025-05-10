@@ -7,3 +7,8 @@ export const useModalWidth = () => {
 
   return containerType === "phone" ? "88%" : "94%"
 }
+
+export const useFilter = () => {
+  const { filter, setFilter } = React.useContext(GlobalContext)
+  return [filter, setFilter] as const
+}

@@ -5,13 +5,42 @@ import { ContainerType, SourceType } from "~utils/constant"
 export interface GlobalContextProps {
   source: SourceType
   containerType: ContainerType
+  filter: "deleted" | "normal"
+  setFilter: (filter: "deleted" | "normal") => void
 }
 
-export const GlobalContext = React.createContext<GlobalContextProps>({
+const defaultContext: GlobalContextProps = {
   source: SourceType.POPUP,
-  containerType: ContainerType.DEFAULT
-})
+  containerType: ContainerType.DEFAULT,
+  filter: "normal",
+  setFilter: () => {}
+}
 
-const { Provider, Consumer } = GlobalContext
+export const GlobalContext =
+  React.createContext<GlobalContextProps>(defaultContext)
 
-export { Provider, Consumer }
+interface ProviderProps {
+  value: Omit<GlobalContextProps, "setFilter" | "filter">
+  children: React.ReactNode
+}
+
+export const Provider = ({ children, value }: ProviderProps): JSX.Element => {
+  const [filter, setFilter] = React.useState<"deleted" | "normal">("normal")
+
+  const contextValue: GlobalContextProps = React.useMemo(
+    () => ({
+      ...value,
+      filter,
+      setFilter
+    }),
+    [value, filter]
+  )
+
+  return React.createElement(
+    GlobalContext.Provider,
+    { value: contextValue },
+    children
+  )
+}
+
+export const Consumer = GlobalContext.Consumer

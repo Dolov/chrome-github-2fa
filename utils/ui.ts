@@ -272,7 +272,7 @@ export const startOtpMessageUpdater = (
       input.value = otp
     }
 
-    textElement.innerHTML = `2FA 服务由 <a class="${PREFIX}-gradient-link" href="https://github.com/Dolov/chrome-best-cookier" target="_blank">github-2fa</a> 扩展提供，感谢使用！(有效期：${timeRemaining}秒)`
+    textElement.innerHTML = `2FA 服务由 <a class="${PREFIX}-gradient-link" href="https://github.com/Dolov/chrome-github-2fa" target="_blank">github-2fa</a> 扩展提供，感谢使用！(有效期：${timeRemaining}秒)`
   }
 
   updateOtpMessage()
