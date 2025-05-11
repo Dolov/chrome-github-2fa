@@ -179,3 +179,7 @@ export const readQRCodeFromFile = (file: File): Promise<string> => {
     reader.readAsDataURL(file)
   })
 }
+
+export const sleep = (ms = 1000) => {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}

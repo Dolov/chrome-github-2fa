@@ -18,7 +18,8 @@ import {
   isOtpAuthUrl,
   parseOtpAuthUrl,
   readQRCodeFromFile,
-  saveOTP
+  saveOTP,
+  sleep
 } from "~utils"
 import { ActionType, StorageKey, type DataProps } from "~utils/constant"
 
@@ -36,7 +37,6 @@ const Create: React.FC<CreateProps> = (props) => {
   const [scaning, setScaning] = React.useState(false)
   const [scanable, setScanable] = React.useState(false)
   const [uploadVisible, setUploadVisible] = React.useState(false)
-
   React.useEffect(() => {
     canInjectContentScript().then(setScanable)
   }, [])
@@ -75,34 +75,44 @@ const Create: React.FC<CreateProps> = (props) => {
     })
   }
 
-  const handleQRScanResult = (result) => {
+  const handleQRScanResult = async (result) => {
     if (!result) return
     const { success, data } = result
-    if (success) {
-      const parsedData = parseOtpAuthUrl(data)
-      if (isExist(parsedData)) {
-        message.warning("该 QR code 已存在。")
-        return
-      }
-      const nextData: DataProps[] = [
-        ...dataList,
-        {
-          id: `${Date.now()}`,
-          ...parsedData
-        }
-      ]
-      setScaning(true)
-      setTimeout(() => {
-        setActive(false)
-        setScaning(false)
-        setDataList(nextData)
-        message.success("添加成功")
-      }, 1000)
+    // 无法自动识别二维码，开启手动截图模式
+    if (!success) {
+      const messageText = "未检测到二维码，开启手动截图模式，ESC 退出"
+      sendManualScanMessage(messageText)
       return
     }
-    // 无法自动识别二维码，开启手动截图模式
-    const messageText = "未检测到二维码，开启手动截图模式，ESC 退出"
-    sendManualScanMessage(messageText)
+    const parsedData = parseOtpAuthUrl(data)
+
+    setScaning(true)
+    await sleep(1000)
+
+    if (!parsedData.account) {
+      const account = prompt("请输入账号名称")
+      if (!account) {
+        setScaning(false)
+        message.error("请输入账号名称")
+        return
+      }
+      parsedData.account = account
+    }
+
+    if (isExist(parsedData)) {
+      setScaning(false)
+      message.warning("该 QR code 已存在。")
+      return
+    }
+
+    await saveOTP({
+      id: Date.now().toString(),
+      ...parsedData
+    })
+
+    setActive(false)
+    setScaning(false)
+    message.success(`${parsedData.issuer} - ${parsedData.account} 添加成功`)
   }
 
   const handleManualScan = () => {
