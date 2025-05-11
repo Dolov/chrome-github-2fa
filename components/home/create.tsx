@@ -10,6 +10,8 @@ import React from "react"
 
 import { useStorage } from "@plasmohq/storage/hook"
 
+import OtpRemaining from "~components/otp-remaining"
+import OtpText from "~components/otp-text"
 import Button from "~components/ui/button"
 import message from "~components/ui/message"
 import Modal from "~components/ui/modal"
@@ -37,6 +39,7 @@ const Create: React.FC<CreateProps> = (props) => {
   const [scaning, setScaning] = React.useState(false)
   const [scanable, setScanable] = React.useState(false)
   const [uploadVisible, setUploadVisible] = React.useState(false)
+  const [otp, setOtp] = React.useState("")
   React.useEffect(() => {
     canInjectContentScript().then(setScanable)
   }, [])
@@ -222,46 +225,10 @@ const UploadModal = (props) => {
   const { visible, onClose } = props
   const width = useModalWidth()
   const [error, setError] = React.useState(false)
+  const [parsedData, setParsedData] =
+    React.useState<ReturnType<typeof parseOtpAuthUrl>>(null)
+  const [accountName, setAccountName] = React.useState("")
   const fileInputRef = React.useRef<HTMLInputElement>(null)
-
-  const handleUploadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    processFile(file)
-  }
-
-  const handlePaste = (e: ClipboardEvent) => {
-    const items = e.clipboardData?.items
-    if (!items) return
-    for (const item of items) {
-      if (item.type.startsWith("image/")) {
-        const blob = item.getAsFile()
-        if (blob) {
-          // 使用 DataTransfer 来模拟用户选择文件
-          const dt = new DataTransfer()
-          dt.items.add(blob)
-          if (fileInputRef.current) {
-            fileInputRef.current.files = dt.files
-          }
-          processFile(blob)
-        }
-      }
-    }
-  }
-
-  const processFile = (file: File) => {
-    readQRCodeFromFile(file).then((data) => {
-      const isOtpAuth = isOtpAuthUrl(data)
-      if (!isOtpAuth) {
-        setError(true)
-        return
-      }
-      setError(false)
-      const parsedData = parseOtpAuthUrl(data)
-      console.log("QRCode Data:", parsedData)
-    })
-  }
-
   React.useEffect(() => {
     if (visible) {
       window.addEventListener("paste", handlePaste)
@@ -271,11 +238,64 @@ const UploadModal = (props) => {
     }
   }, [visible])
 
+  const handleUploadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    processFile(file)
+  }
+
+  const handlePaste = (e: ClipboardEvent) => {
+    const items = e.clipboardData?.items
+    const item = items?.[0]
+    if (!item) return
+    const imageType = item.type.startsWith("image/")
+    if (!imageType) return
+
+    const blob = item.getAsFile()
+    if (!blob) return
+    // 使用 DataTransfer 来模拟用户选择文件
+    const dt = new DataTransfer()
+    dt.items.add(blob)
+    if (fileInputRef.current) {
+      fileInputRef.current.files = dt.files
+    }
+    processFile(blob)
+  }
+
+  const processFile = async (file: File) => {
+    setParsedData(null)
+    const data = await readQRCodeFromFile(file)
+    const isOtpAuth = isOtpAuthUrl(data)
+    if (!isOtpAuth) {
+      setError(true)
+      return
+    }
+    setError(false)
+    const parsedData = parseOtpAuthUrl(data)
+    setParsedData(parsedData)
+  }
+
+  const handleOk = async () => {
+    const saveData = {
+      id: Date.now().toString(),
+      ...parsedData
+    }
+    if (!saveData.account) {
+      saveData.account = accountName
+    }
+    await saveOTP(saveData)
+    onClose()
+  }
+
+  const { secret, account } = parsedData || {}
+
   return (
     <Modal
       width={width}
       title="上传二维码截图"
       visible={visible}
+      onOk={handleOk}
+      okDisabled={!accountName && !account}
       onClose={onClose}>
       {error && (
         <div role="alert" className="alert alert-warning flex mb-2">
@@ -303,7 +323,33 @@ const UploadModal = (props) => {
           className="file-input file-input-bordered file-input-neutral w-full max-w-xs"
         />
       </div>
-      <p className="text-sm text-neutral-500 mt-2">你也可以直接粘贴截图</p>
+      <div className="p-2">
+        <p className="text-sm text-neutral-500">你也可以直接粘贴截图</p>
+        {!account && secret && (
+          <label className="input input-bordered flex items-center mt-6">
+            <input
+              autoFocus
+              type="text"
+              className="grow"
+              placeholder="输入账户名称"
+              value={accountName}
+              onChange={(e) => {
+                setAccountName(e.target.value)
+              }}
+            />
+          </label>
+        )}
+        {secret && (
+          <div>
+            <OtpRemaining />
+            <OtpText
+              small
+              secret={secret}
+              className="text-primary font-bold text-2xl"
+            />
+          </div>
+        )}
+      </div>
     </Modal>
   )
 }

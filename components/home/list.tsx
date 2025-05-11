@@ -7,6 +7,7 @@ import { useStorage } from "@plasmohq/storage/hook"
 
 import { type DataProps } from "~/utils/constant"
 import Favicon, { elegantImageMap, minimalIconMap } from "~components/favicons"
+import OtpRemaining from "~components/otp-remaining"
 import OtpText from "~components/otp-text"
 import message from "~components/ui/message"
 import {
@@ -58,39 +59,14 @@ interface ListItemProps {
 const ListItem: React.FC<ListItemProps> = (props) => {
   const { data } = props
   const { pinned, issuer, secret, account } = data
-  const [otp, setOtp] = React.useState("")
-  const [nextOtp, setNextOtp] = React.useState("")
   const [actionVisible, setActionVisible] = React.useState(false)
-  const [timeRemaining, setTimeRemaining] = React.useState<number>(null)
-  const timer = React.useRef(null)
-
-  React.useEffect(() => {
-    calcOTP()
-    timer.current = setInterval(() => {
-      calcOTP()
-    }, 1000)
-
-    return () => {
-      clearInterval(timer.current)
-    }
-  }, [])
-
-  const calcOTP = () => {
-    const otp = generateOtp(secret)
-    const nextOtp = generateOtp(secret, true)
-    const timeRemaining = getRemainingTime()
-
-    setOtp(otp)
-    setNextOtp(nextOtp)
-    setTimeRemaining(timeRemaining)
-  }
 
   const handleCopy = () => {
+    const otp = generateOtp(secret)
     copyTextToClipboard(otp)
     message.success(`复制成功`)
   }
 
-  const color = getProgressColor(timeRemaining)
   return (
     <div
       onClick={handleCopy}
@@ -100,12 +76,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
           "shadow-lg": pinned
         }
       )}>
-      <progress
-        max={30}
-        value={timeRemaining}
-        className={`progress ${color} w-full absolute top-[0px] h-[3px] bg-base-200`}
-      />
-
+      <OtpRemaining className="absolute top-[0px] h-[3px]" />
       {pinned && <div className="absolute top-0 left-0 w-2 h-full bg-accent" />}
       <ItemActions
         visible={actionVisible}
@@ -131,12 +102,18 @@ const ListItem: React.FC<ListItemProps> = (props) => {
           {account}
         </div>
         <div className="mt-2 flex justify-between items-center">
-          <OtpText className="font-bold text-2xl text-primary">{otp}</OtpText>
+          <OtpText
+            secret={secret}
+            className="font-bold text-2xl text-primary"
+          />
           <div>
             <div className="base-content text-[0.6rem] text-right">下一个</div>
-            <OtpText small className="text-secondary text-sm font-medium">
-              {nextOtp}
-            </OtpText>
+            <OtpText
+              next
+              small
+              secret={secret}
+              className="text-secondary text-sm font-medium"
+            />
           </div>
         </div>
       </div>
