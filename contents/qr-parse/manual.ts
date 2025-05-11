@@ -1,7 +1,12 @@
 import jsQR from "jsqr"
 import type { PlasmoCSConfig, PlasmoGetShadowHostId } from "plasmo"
 
-import { createSelectionBox, isOtpAuthUrl } from "~utils"
+import {
+  createSelectionBox,
+  isOtpAuthUrl,
+  parseOtpAuthUrl,
+  saveOTP
+} from "~utils"
 import { ActionType, contentBaseZindex } from "~utils/constant"
 import message from "~utils/message"
 
@@ -30,9 +35,9 @@ const addScreenshotOverlay = (sendResponse, messageText) => {
   overlay.style.left = "0"
   overlay.style.width = "100vw"
   overlay.style.height = "100vh"
-  overlay.style.background = "rgba(0, 0, 0, 0.5)"
   overlay.style.zIndex = `${contentBaseZindex}`
   overlay.style.cursor = "crosshair"
+  overlay.style.background = "rgba(0, 0, 0, 0.5)"
   document.body.appendChild(overlay)
 
   const messageVm = message.info(messageText, 60000)
@@ -113,7 +118,20 @@ const addScreenshotOverlay = (sendResponse, messageText) => {
           return
         }
         dismissAll()
-        message.success("二维码解析成功")
+        const parsed = parseOtpAuthUrl(qrData)
+        if (!parsed.account) {
+          const account = prompt("请输入账号名称")
+          if (!account) {
+            message.error("请输入账号名称")
+            return
+          }
+          parsed.account = account
+        }
+        await saveOTP({
+          ...parsed,
+          id: Date.now().toString()
+        })
+        message.success(`${parsed.issuer} - ${parsed.account} 添加成功`)
       }
     )
   }

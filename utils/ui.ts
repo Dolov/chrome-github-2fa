@@ -168,7 +168,7 @@ export const createSelectionBox = (
     zIndex: zIndex.toString(),
     borderRadius: "8px",
     pointerEvents: "none",
-    backdropFilter: "blur(2px)",
+    // backdropFilter: "blur(2px)",
     backgroundColor: "rgba(255, 255, 255, 0.05)"
   })
   box.className = className

@@ -1,5 +1,6 @@
 import jsQR from "jsqr"
 
+// 复制文本到剪贴板
 export const copyTextToClipboard = (text: string) => {
   const textArea = document.createElement("textarea")
   textArea.value = text
@@ -16,6 +17,7 @@ export const copyTextToClipboard = (text: string) => {
   document.body.removeChild(textArea)
 }
 
+// 下载Base64图片
 export const downloadBase64Image = (base64Data: string, fileName: string) => {
   const byteCharacters = atob(base64Data.split(",")[1])
   const byteNumbers = new Uint8Array(byteCharacters.length)
@@ -34,6 +36,7 @@ export const downloadBase64Image = (base64Data: string, fileName: string) => {
   URL.revokeObjectURL(url)
 }
 
+// 检查是否可注入内容脚本
 export const canInjectContentScript = async (): Promise<boolean> => {
   try {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
@@ -54,6 +57,7 @@ export const canInjectContentScript = async (): Promise<boolean> => {
   }
 }
 
+// 等待DOM元素出现
 export const waitForElement = <T extends Element = Element>(
   selector: string,
   once = false
@@ -92,6 +96,7 @@ export const waitForElement = <T extends Element = Element>(
   })
 }
 
+// 从URL提取动态段
 export const extractDynamicSegment = (
   url: string,
   template: string | string[]
@@ -112,6 +117,7 @@ export const extractDynamicSegment = (
   return null
 }
 
+// 等待URL路径匹配
 export const waitForPathMatchStrict = ({
   endsWith
 }: {
@@ -124,7 +130,7 @@ export const waitForPathMatchStrict = ({
       .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&") // 转义特殊字符
       .replace(/\*/g, "[^/?#]+") // * 匹配非 /、?、# 的片段
 
-    return new RegExp(escaped + "$") // 只需确保“以这个结尾”
+    return new RegExp(escaped + "$") // 只需确保"以这个结尾"
   })
 
   return new Promise((resolve) => {
@@ -140,6 +146,7 @@ export const waitForPathMatchStrict = ({
   })
 }
 
+// 从图片读取二维码
 export const readQRCodeFromImage = (img: HTMLImageElement): Promise<string> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas")
@@ -154,5 +161,21 @@ export const readQRCodeFromImage = (img: HTMLImageElement): Promise<string> => {
     const code = jsQR(imageData.data, imageData.width, imageData.height)
 
     code ? resolve(code.data) : reject(new Error("未找到二维码"))
+  })
+}
+
+// 从文件读取二维码
+export const readQRCodeFromFile = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.src = event.target?.result as string
+      img.onload = () => {
+        readQRCodeFromImage(img).then(resolve).catch(reject)
+      }
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
   })
 }

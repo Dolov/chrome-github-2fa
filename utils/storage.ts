@@ -13,7 +13,7 @@ export const saveOTP = async (otpData: DataProps) => {
     !otpData.issuer ||
     !otpData.account
   ) {
-    throw new Error("otpData is invalid")
+    throw new Error(`otpData is invalid: ${JSON.stringify(otpData, null, 2)}`)
   }
   const existingData = (await storage.get<DataProps[]>(StorageKey.DATA)) || []
 
