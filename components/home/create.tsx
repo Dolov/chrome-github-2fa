@@ -297,6 +297,12 @@ const UploadModal = (props) => {
     onClose()
   }
 
+  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleOk()
+    }
+  }
+
   const { secret, account } = parsedData || {}
 
   return (
@@ -334,7 +340,7 @@ const UploadModal = (props) => {
         />
       </div>
       <div className="p-2">
-        <p className="text-sm text-neutral-500">你也可以直接粘贴截图</p>
+        <p className="text-sm text-neutral-500">你也可以直接粘贴截图1</p>
         {!account && secret && (
           <label className="input input-bordered flex items-center mt-6">
             <input
@@ -343,6 +349,7 @@ const UploadModal = (props) => {
               className="grow"
               placeholder="输入账户名称"
               value={accountName}
+              onKeyDown={handleEnter}
               onChange={(e) => {
                 setAccountName(e.target.value)
               }}
