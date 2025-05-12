@@ -12,9 +12,9 @@ const Button = (props: ButtonProps) => {
   const {
     loading,
     disabled,
+    children,
     onlyLoading,
     loadingClassName,
-    children,
     ...otherProps
   } = props
 

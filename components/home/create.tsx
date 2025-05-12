@@ -37,11 +37,11 @@ const Create: React.FC<CreateProps> = (props) => {
   const [visible, setVisible] = React.useState(false)
   const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const [scaning, setScaning] = React.useState(false)
-  const [scanable, setScanable] = React.useState(false)
+  const [injectable, setInjectable] = React.useState(false)
   const [uploadVisible, setUploadVisible] = React.useState(false)
-  const [otp, setOtp] = React.useState("")
+
   React.useEffect(() => {
-    canInjectContentScript().then(setScanable)
+    canInjectContentScript().then(setInjectable)
   }, [])
 
   const toggle = () => {
@@ -166,25 +166,35 @@ const Create: React.FC<CreateProps> = (props) => {
         <div
           className="tooltip tooltip-open tooltip-left before:py-2"
           data-tip="自动扫描二维码">
-          <Button
-            onlyLoading
-            loading={scaning}
-            onClick={handleAutoScan}
-            disabled={!scanable}
-            className={clsx("btn btn-square btn-accent shadow-2xl scale-75")}>
-            <QrCode />
-          </Button>
+          <div
+            className={clsx("scale-75", {
+              "bg-base-300": !injectable
+            })}>
+            <Button
+              onlyLoading
+              loading={scaning}
+              onClick={handleAutoScan}
+              disabled={!injectable}
+              className={clsx("btn btn-square btn-accent shadow-2xl")}>
+              <QrCode />
+            </Button>
+          </div>
         </div>
         <div
           className="tooltip tooltip-open tooltip-left before:py-2"
           data-tip="手动截取二维码">
-          <Button
-            onlyLoading
-            onClick={handleManualScan}
-            disabled={!scanable}
-            className={clsx("btn btn-square btn-info shadow-2xl scale-75")}>
-            <SquareDashedMousePointer />
-          </Button>
+          <div
+            className={clsx("scale-75", {
+              "bg-base-300": !injectable
+            })}>
+            <Button
+              onlyLoading
+              onClick={handleManualScan}
+              disabled={!injectable}
+              className={clsx("btn btn-square btn-info shadow-2xl")}>
+              <SquareDashedMousePointer />
+            </Button>
+          </div>
         </div>
         <div
           className="tooltip tooltip-open tooltip-left before:py-2"
