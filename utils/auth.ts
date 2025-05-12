@@ -1,12 +1,7 @@
 import jsQR from "jsqr"
 import { authenticator } from "otplib"
 
-interface OtpAuthConfig {
-  type: "totp" | "hotp"
-  secret: string
-  issuer: string
-  account: string
-}
+import type { OtpAuthConfig } from "./constant"
 
 interface AuthenticatorConfig {
   step: number
@@ -26,21 +21,75 @@ const DEFAULT_AUTHENTICATOR_CONFIG: AuthenticatorConfig = {
  * @throws {Error} 当 URL 格式无效时抛出错误
  */
 export const parseOtpAuthUrl = (otpauthUrl: string): OtpAuthConfig => {
+  // otpauth://totp/GitHub:acloudfly?secret=N2CNXSJV7LG75BUI&issuer=GitHub
+  // otpauth://totp/shisongyan?secret=YMKVIYF4GLUR33S72SLEIWOCOJYSSAPE&issuer=npm
+
   const url = new URL(otpauthUrl)
+
   if (url.protocol !== "otpauth:") {
-    throw new Error("Invalid OTPAuth URL")
+    throw new Error("Invalid URL scheme, must start with otpauth://")
   }
 
   const type = url.hostname as "totp" | "hotp"
-  const [, account] = url.pathname.split(":")
-  const params = Object.fromEntries(new URLSearchParams(url.search))
-  const { secret, issuer } = params
+  if (!["totp", "hotp"].includes(type)) {
+    throw new Error("Unsupported OTP type. Must be 'totp' or 'hotp'")
+  }
+
+  const label = decodeURIComponent(url.pathname.slice(1))
+  const [labelIssuer, account] = label.includes(":")
+    ? label.split(/:(.+)/)
+    : [undefined, label]
+
+  if (!account) {
+    throw new Error("Missing account name in OTPAuth URL")
+  }
+
+  const params = new URLSearchParams(url.search)
+
+  const secret = params.get("secret")
+  if (!secret) throw new Error("Missing 'secret' parameter")
+
+  const issuer = params.get("issuer") ?? labelIssuer
+
+  const algorithmParam = params.get("algorithm")
+  const algorithm = algorithmParam
+    ? (algorithmParam.toUpperCase() as OtpAuthConfig["algorithm"])
+    : undefined
+
+  if (algorithm && !["SHA1", "SHA256", "SHA512", "MD5"].includes(algorithm)) {
+    throw new Error(`Unsupported algorithm: ${algorithm}`)
+  }
+
+  const digitsParam = params.get("digits")
+  const digits = digitsParam ? Number(digitsParam) : undefined
+  if (digits !== undefined && ![6, 7, 8].includes(digits)) {
+    throw new Error("Digits must be 6, 7, or 8")
+  }
+
+  const periodParam = params.get("period")
+  const period =
+    type === "totp" && periodParam ? Number(periodParam) : undefined
+
+  const counterParam = params.get("counter")
+  const counter =
+    type === "hotp" && counterParam ? Number(counterParam) : undefined
+
+  if (
+    type === "hotp" &&
+    (counter === undefined || isNaN(counter) || counter < 0)
+  ) {
+    throw new Error("HOTP type requires a valid numeric 'counter'")
+  }
 
   return {
     type,
     secret,
     issuer,
-    account
+    account,
+    ...(algorithm && { algorithm }),
+    ...(digits !== undefined && { digits }),
+    ...(period !== undefined && { period }),
+    ...(counter !== undefined && { counter })
   }
 }
 

@@ -37,12 +37,19 @@ export enum ActionType {
   CAPTURE_SCREENSHOT = "CAPTURE_SCREENSHOT"
 }
 
-export interface DataProps {
-  id: string
+export interface OtpAuthConfig {
   type: "totp" | "hotp"
-  issuer: string
   secret: string
   account: string
+  issuer?: string
+  digits?: number
+  period?: number // Only for TOTP
+  counter?: number // Only for HOTP
+  algorithm?: "SHA1" | "SHA256" | "SHA512" | "MD5"
+}
+
+export interface DataProps extends OtpAuthConfig {
+  id: string
   pinned?: boolean
   remark?: string
   deleted?: boolean
@@ -70,6 +77,7 @@ export const COLORS = [
 export const GRADIENT = `linear-gradient(to right, ${COLORS.join(", ")})`
 
 // otpauth://totp/GitHub:acloudfly?secret=N2CNXSJV7LG75BUI&issuer=GitHub
+// otpauth://totp/shisongyan?secret=YMKVIYF4GLUR33S72SLEIWOCOJYSSAPE&issuer=npm
 
 export const mockData = [
   {

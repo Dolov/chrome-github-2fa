@@ -282,6 +282,7 @@ const UploadModal = (props) => {
     }
     setError(false)
     const parsedData = parseOtpAuthUrl(data)
+    console.log(parsedData, "parsedData")
     setParsedData(parsedData)
   }
 
@@ -295,6 +296,8 @@ const UploadModal = (props) => {
     }
     await saveOTP(saveData)
     onClose()
+    setParsedData(null)
+    setAccountName("")
   }
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
