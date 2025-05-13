@@ -21,7 +21,7 @@ const OtpForm: React.FC<{
   editItem?: any
 }> = (props) => {
   const { visible, onClose, editItem } = props
-  const width = useModalWidth()
+  const { width } = useModalWidth()
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const title = "输入账户详细信息"
   const [form, setForm] = React.useState({

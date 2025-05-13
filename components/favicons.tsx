@@ -71,4 +71,15 @@ const Favicon = ({ issuer }: { issuer: string }) => {
   return <Icon className="text-2xl" />
 }
 
+export const FaviconMinimal = ({ issuer }: { issuer: string }) => {
+  const vendor = issuer.toLowerCase()
+  const Icon = minimalIconMap[vendor]
+
+  if (Icon) {
+    return <Icon className="text-xl" />
+  }
+
+  return issuer
+}
+
 export default Favicon

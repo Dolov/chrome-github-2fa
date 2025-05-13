@@ -18,7 +18,7 @@ export interface RecoveryCodesProps {
 
 const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
   const { visible, onClose, title, data } = props
-  const width = useModalWidth()
+  const { width } = useModalWidth()
 
   const [updateCodeStatus] = useUpdateCopiedCodeStatus()
 

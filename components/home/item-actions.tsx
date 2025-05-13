@@ -1,3 +1,4 @@
+import clsx from "clsx"
 import {
   KeyRound,
   Pencil,
@@ -12,10 +13,12 @@ import { encodeData, QRDsj } from "react-qrbtf"
 
 import { useStorage } from "@plasmohq/storage/hook"
 
+import { FaviconMinimal } from "~components/favicons"
 import Modal from "~components/ui/modal"
 import { generateOtpAuthUrl } from "~utils"
 import { StorageKey, type DataProps } from "~utils/constant"
 
+import { useModalWidth } from "./hooks"
 import OptForm from "./otp-form"
 import RecoveryCodes from "./recovery-codes"
 
@@ -25,6 +28,7 @@ const ItemActions: React.FC<{
   itemData: DataProps
 }> = (props) => {
   const { visible, onClose, itemData } = props
+  const { left, right, top, bottom, radius } = useModalWidth()
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const [qrVisible, setQrVisible] = React.useState(false)
   const [editVisible, setEditVisible] = React.useState(false)
@@ -90,13 +94,23 @@ const ItemActions: React.FC<{
 
   const { pinned, account, issuer } = itemData
   const url = generateOtpAuthUrl(itemData)
+
   return (
     <div
       onClick={handleMaskClick}
-      className="fixed top-0 left-0 right-0 bottom-0 z-20">
+      style={{
+        top,
+        left,
+        right,
+        bottom
+      }}
+      className={clsx("fixed z-20")}>
       <div
         onClick={onClose}
-        className="absolute top-0 left-0 right-0 bottom-0 bg-base-300 opacity-80"
+        style={{
+          borderRadius: radius
+        }}
+        className="absolute top-0 left-0 right-0 bottom-0 bg-[#0006]"
       />
       <OptForm
         visible={editVisible}
@@ -129,7 +143,12 @@ const ItemActions: React.FC<{
           </div>
         </div>
       </Modal>
-      <div className="absolute bottom-0 right-0 left-0 h-32 bg-base-100 rounded-t-lg flex flex-col">
+      <div
+        style={{
+          borderBottomLeftRadius: radius,
+          borderBottomRightRadius: radius
+        }}
+        className="absolute bottom-0 right-0 left-0 h-32 bg-base-100 flex flex-col">
         <div className="flex-1 flex items-center justify-between px-4">
           <div className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
             <Share2 size={18} />
@@ -177,9 +196,9 @@ const ItemActions: React.FC<{
           </div>
         </div>
         <div className="flex-1 flex items-center justify-between px-4 border-t border-neutral/30">
-          <div>
-            <span>{issuer}</span>
-            {account && <span>({account})</span>}
+          <div className="flex items-center gap-2">
+            <FaviconMinimal issuer={issuer} />
+            {account && <span>{account}</span>}
           </div>
           <span onClick={onClose} className="cursor-pointer">
             取消

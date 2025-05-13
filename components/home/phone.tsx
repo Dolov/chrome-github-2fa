@@ -13,7 +13,7 @@ const Phone: React.FC<PhoneProps> = (props) => {
       <div className="mockup-phone flex flex-col flex-1">
         <div className="camera"></div>
         <div className="display">
-          <div className="artboard artboard-demo phone-1 items-stretch">
+          <div className="artboard artboard-demo phone-1 items-stretch bg-base-100">
             {children}
           </div>
         </div>

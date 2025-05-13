@@ -157,7 +157,7 @@ const Create: React.FC<CreateProps> = (props) => {
           className="tooltip tooltip-open tooltip-left before:py-2"
           data-tip="自动扫描二维码">
           <div
-            className={clsx("scale-75", {
+            className={clsx("scale-75 rounded-btn", {
               "bg-base-300": !injectable
             })}>
             <Button
@@ -174,7 +174,7 @@ const Create: React.FC<CreateProps> = (props) => {
           className="tooltip tooltip-open tooltip-left before:py-2"
           data-tip="手动截取二维码">
           <div
-            className={clsx("scale-75", {
+            className={clsx("scale-75 rounded-btn", {
               "bg-base-300": !injectable
             })}>
             <Button
@@ -223,7 +223,7 @@ const Create: React.FC<CreateProps> = (props) => {
 
 const UploadModal = (props) => {
   const { visible, onClose } = props
-  const width = useModalWidth()
+  const { width } = useModalWidth()
   const [error, setError] = React.useState<string | null>(null)
   const [parsedData, setParsedData] =
     React.useState<ReturnType<typeof parseOtpAuthUrl>>(null)
