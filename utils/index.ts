@@ -10,7 +10,12 @@ export {
 } from "./auth"
 
 // Storage related exports
-export { saveOTP, getOTPList, isRecoveryCodesSaved } from "./storage"
+export {
+  saveOTP,
+  getOTPList,
+  isRecoveryCodesSaved,
+  checkOtpAuthConfigExist
+} from "./storage"
 
 // UI related exports
 export {

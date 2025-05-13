@@ -1,6 +1,6 @@
 import { Storage } from "@plasmohq/storage"
 
-import type { DataProps } from "./constant"
+import type { DataProps, OtpAuthConfig } from "./constant"
 import { StorageKey } from "./constant"
 
 const storage = new Storage()
@@ -90,4 +90,17 @@ export const isRecoveryCodesSaved = async (
   return (
     formatCodes(matchedAccount.recoveryCodes) === formatCodes(recoveryCodes)
   )
+}
+
+export const checkOtpAuthConfigExist = async (otpAuthConfig: OtpAuthConfig) => {
+  const list = await getOTPList(otpAuthConfig.issuer, otpAuthConfig.account)
+  const isExist = list.some((item) => {
+    return (
+      item.type === otpAuthConfig.type &&
+      item.issuer === otpAuthConfig.issuer &&
+      item.secret === otpAuthConfig.secret &&
+      item.account === otpAuthConfig.account
+    )
+  })
+  return isExist
 }

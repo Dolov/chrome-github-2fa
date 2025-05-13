@@ -17,6 +17,7 @@ import message from "~components/ui/message"
 import Modal from "~components/ui/modal"
 import {
   canInjectContentScript,
+  checkOtpAuthConfigExist,
   isOtpAuthUrl,
   parseOtpAuthUrl,
   readQRCodeFromFile,
@@ -51,17 +52,6 @@ const Create: React.FC<CreateProps> = (props) => {
   const handleClose = () => {
     setActive(false)
     setVisible(false)
-  }
-
-  const isExist = (parsedData) => {
-    return dataList.some((item) => {
-      return (
-        item.type === parsedData.type &&
-        item.issuer === parsedData.issuer &&
-        item.secret === parsedData.secret &&
-        item.account === parsedData.account
-      )
-    })
   }
 
   const handleAutoScan = () => {
@@ -102,7 +92,7 @@ const Create: React.FC<CreateProps> = (props) => {
       parsedData.account = account
     }
 
-    if (isExist(parsedData)) {
+    if (checkOtpAuthConfigExist(parsedData)) {
       setScaning(false)
       message.warning("该 QR code 已存在。")
       return
@@ -234,7 +224,7 @@ const Create: React.FC<CreateProps> = (props) => {
 const UploadModal = (props) => {
   const { visible, onClose } = props
   const width = useModalWidth()
-  const [error, setError] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
   const [parsedData, setParsedData] =
     React.useState<ReturnType<typeof parseOtpAuthUrl>>(null)
   const [accountName, setAccountName] = React.useState("")
@@ -243,6 +233,7 @@ const UploadModal = (props) => {
     if (visible) {
       window.addEventListener("paste", handlePaste)
     }
+
     return () => {
       window.removeEventListener("paste", handlePaste)
     }
@@ -277,12 +268,18 @@ const UploadModal = (props) => {
     const data = await readQRCodeFromFile(file)
     const isOtpAuth = isOtpAuthUrl(data)
     if (!isOtpAuth) {
-      setError(true)
+      setError("无效的 OTP Auth URL")
       return
     }
-    setError(false)
     const parsedData = parseOtpAuthUrl(data)
-    console.log(parsedData, "parsedData")
+
+    const isExist = await checkOtpAuthConfigExist(parsedData)
+    if (isExist) {
+      setError("该账户已存在")
+      return
+    }
+
+    setError(null)
     setParsedData(parsedData)
   }
 
@@ -294,10 +291,14 @@ const UploadModal = (props) => {
     if (!saveData.account) {
       saveData.account = accountName
     }
+
+    const isExist = await checkOtpAuthConfigExist(saveData)
+    if (isExist) {
+      setError("该账户已存在")
+      return
+    }
     await saveOTP(saveData)
-    onClose()
-    setParsedData(null)
-    setAccountName("")
+    handleClose()
   }
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -306,7 +307,18 @@ const UploadModal = (props) => {
     }
   }
 
+  const handleClose = () => {
+    setError(null)
+    setParsedData(null)
+    setAccountName("")
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+    onClose()
+  }
+
   const { secret, account } = parsedData || {}
+  const okDisabled = (!accountName && !account) || !!error
 
   return (
     <Modal
@@ -314,25 +326,8 @@ const UploadModal = (props) => {
       title="上传二维码截图"
       visible={visible}
       onOk={handleOk}
-      okDisabled={!accountName && !account}
-      onClose={onClose}>
-      {error && (
-        <div role="alert" className="alert alert-warning flex mb-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
-            fill="none"
-            viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          <span className="align-left">这不是一个有效的 OTP Auth URL</span>
-        </div>
-      )}
+      onClose={onClose}
+      okDisabled={okDisabled}>
       <div className="p-1">
         <input
           ref={fileInputRef}
@@ -343,7 +338,7 @@ const UploadModal = (props) => {
         />
       </div>
       <div className="p-2">
-        <p className="text-sm text-neutral-500">你也可以直接粘贴截图1</p>
+        <p className="text-sm text-neutral-500">你也可以直接粘贴截图</p>
         {!account && secret && (
           <label className="input input-bordered flex items-center mt-6">
             <input
@@ -370,6 +365,23 @@ const UploadModal = (props) => {
           </div>
         )}
       </div>
+      {error && (
+        <div role="alert" className="alert alert-warning flex mb-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 shrink-0 stroke-current"
+            fill="none"
+            viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <span className="align-left">{error}</span>
+        </div>
+      )}
     </Modal>
   )
 }
