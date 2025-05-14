@@ -98,8 +98,36 @@ export const parseOtpAuthUrl = (otpauthUrl: string): OtpAuthConfig => {
  * @param config OTPAuth 配置对象
  */
 export function generateOtpAuthUrl(config: OtpAuthConfig): string {
-  const { type, account, secret, issuer } = config
-  return `otpauth://${type}/${account}?secret=${secret}&issuer=${issuer}`
+  const {
+    type,
+    account,
+    secret,
+    issuer,
+    digits = 6,
+    period = 30,
+    algorithm = "SHA1",
+    counter
+  } = config
+
+  const label = issuer
+    ? `${encodeURIComponent(issuer)}:${encodeURIComponent(account)}`
+    : encodeURIComponent(account)
+
+  const params = new URLSearchParams({
+    secret,
+    digits: digits.toString(),
+    period: period.toString(),
+    algorithm
+  })
+
+  if (issuer) {
+    params.set("issuer", issuer)
+  }
+  if (type === "hotp" && typeof counter === "number") {
+    params.set("counter", counter.toString())
+  }
+
+  return `otpauth://${type}/${label}?${params.toString()}`
 }
 
 /**
