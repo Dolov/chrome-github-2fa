@@ -28,7 +28,7 @@ const ItemActions: React.FC<{
   itemData: DataProps
 }> = (props) => {
   const { visible, onClose, itemData } = props
-  const { left, right, top, bottom, radius } = useModalWidth()
+  const { width, left, right, top, bottom, radius } = useModalWidth()
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const [qrVisible, setQrVisible] = React.useState(false)
   const [editVisible, setEditVisible] = React.useState(false)
@@ -92,7 +92,9 @@ const ItemActions: React.FC<{
 
   if (!visible) return null
 
-  const { pinned, account, issuer } = itemData
+  const { pinned, account, issuer, recoveryCodes } = itemData
+  const recoveryBtnVisible = true
+  // Array.isArray(recoveryCodes) && recoveryCodes.length > 0
   const url = generateOtpAuthUrl(itemData)
 
   return (
@@ -130,6 +132,7 @@ const ItemActions: React.FC<{
         }}
       />
       <Modal
+        width={width}
         visible={qrVisible}
         onClose={() => {
           onClose()
@@ -149,60 +152,76 @@ const ItemActions: React.FC<{
           borderBottomRightRadius: radius
         }}
         className="absolute bottom-0 right-0 left-0 h-32 bg-base-100 flex flex-col">
-        <div className="flex-1 flex items-center justify-between px-4">
-          <div className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
-            <Share2 size={18} />
-            <span className="text-xs font-normal">分享</span>
-          </div>
-          <div
+        <div className="flex-1 flex items-center justify-between px-2">
+          <button
+            onClick={handleShare}
+            className="btn btn-ghost px-2 hover:text-primary">
+            <div className="flex flex-col items-center justify-center gap-1">
+              <Share2 size={18} />
+              <span className="text-xs font-normal">分享</span>
+            </div>
+          </button>
+          <button
             onClick={handlePin}
-            className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
-            {!pinned && (
-              <Fragment>
-                <Pin size={18} />
-                <span className="text-xs font-normal">置顶</span>
-              </Fragment>
-            )}
-            {pinned && (
-              <Fragment>
-                <PinOff size={18} />
-                <span className="text-xs font-normal">取消置顶</span>
-              </Fragment>
-            )}
-          </div>
-          <div
+            className="btn btn-ghost px-2 hover:text-secondary">
+            <div className="flex flex-col items-center justify-center gap-1">
+              {!pinned && (
+                <Fragment>
+                  <Pin size={18} />
+                  <span className="text-xs font-normal">置顶</span>
+                </Fragment>
+              )}
+              {pinned && (
+                <Fragment>
+                  <PinOff size={18} />
+                  <span className="text-xs font-normal">取消</span>
+                </Fragment>
+              )}
+            </div>
+          </button>
+          <button
             onClick={handleQr}
-            className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
-            <QrCode size={18} />
-            <span className="text-xs font-normal">二维码</span>
-          </div>
-          <div
+            className="btn btn-ghost px-2 hover:text-accent">
+            <div className="flex flex-col items-center justify-center gap-1">
+              <QrCode size={18} />
+              <span className="text-xs font-normal">二维码</span>
+            </div>
+          </button>
+          <button
             onClick={handleEdit}
-            className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
-            <Pencil size={18} />
-            <span className="text-xs font-normal">编辑</span>
-          </div>
-          <div
-            onClick={handleRecovery}
-            className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
-            <KeyRound size={18} />
-            <span className="text-xs font-normal">恢复码</span>
-          </div>
-          <div
+            className="btn btn-ghost px-2 hover:text-info">
+            <div className="flex flex-col items-center justify-center gap-1">
+              <Pencil size={18} />
+              <span className="text-xs font-normal">编辑</span>
+            </div>
+          </button>
+          {recoveryBtnVisible && (
+            <button
+              onClick={handleRecovery}
+              className="btn btn-ghost px-2 hover:text-success">
+              <div className="flex flex-col items-center justify-center gap-1">
+                <KeyRound size={18} />
+                <span className="text-xs font-normal">恢复码</span>
+              </div>
+            </button>
+          )}
+          <button
             onClick={handleDelete}
-            className="flex flex-col items-center justify-center gap-1 cursor-pointer w-12 h-12 rounded-lg hover:bg-neutral/50">
-            <Trash2 size={18} />
-            <span className="text-xs font-normal">删除</span>
-          </div>
+            className="btn btn-ghost px-2 hover:text-error">
+            <div className="flex flex-col items-center justify-center gap-1">
+              <Trash2 size={18} />
+              <span className="text-xs font-normal">删除</span>
+            </div>
+          </button>
         </div>
         <div className="flex-1 flex items-center justify-between px-4 border-t border-neutral/30">
           <div className="flex items-center gap-2">
             <FaviconMinimal issuer={issuer} />
             {account && <span>{account}</span>}
           </div>
-          <span onClick={onClose} className="cursor-pointer">
+          <button onClick={onClose} className="btn btn-sm btn-ghost">
             取消
-          </span>
+          </button>
         </div>
       </div>
     </div>
