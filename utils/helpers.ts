@@ -17,6 +17,15 @@ export const copyTextToClipboard = (text: string) => {
   document.body.removeChild(textArea)
 }
 
+export const copyTextToClipboardV2 = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    console.log("已复制到剪贴板")
+  } catch (err) {
+    console.error("复制失败", err)
+  }
+}
+
 // 下载Base64图片
 export const downloadBase64Image = (base64Data: string, fileName: string) => {
   const byteCharacters = atob(base64Data.split(",")[1])

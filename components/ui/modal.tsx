@@ -8,7 +8,7 @@ export interface ModalProps {
   width?: number | string
   visible: boolean
   onOk?: () => void
-  title?: string
+  title?: React.ReactNode
   footer?: React.ReactNode
   onClose?: () => void
   children: React.ReactNode

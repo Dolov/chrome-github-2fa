@@ -8,19 +8,20 @@ import {
   Share2,
   Trash2
 } from "lucide-react"
+import { QRCodeCanvas } from "qrcode.react"
 import React, { Fragment } from "react"
-import { encodeData, QRDsj } from "react-qrbtf"
 
 import { useStorage } from "@plasmohq/storage/hook"
 
 import { FaviconMinimal } from "~components/favicons"
+import message from "~components/ui/message"
 import Modal from "~components/ui/modal"
-import { generateOtpAuthUrl } from "~utils"
+import { copyTextToClipboardV2, generateOtpAuthUrl } from "~utils"
 import { StorageKey, type DataProps } from "~utils/constant"
 
 import { useModalWidth } from "./hooks"
-import OptForm from "./otp-form"
-import RecoveryCodes from "./recovery-codes"
+import EditModal from "./otp-form"
+import RecoveryCodeModal from "./recovery-codes"
 
 const ItemActions: React.FC<{
   visible: boolean
@@ -28,44 +29,42 @@ const ItemActions: React.FC<{
   itemData: DataProps
 }> = (props) => {
   const { visible, onClose, itemData } = props
-  const { width, left, right, top, bottom, radius } = useModalWidth()
-  const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const { left, right, top, bottom, radius } = useModalWidth()
+  const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const [qrVisible, setQrVisible] = React.useState(false)
   const [editVisible, setEditVisible] = React.useState(false)
+  const [deleteVisible, setDeleteVisible] = React.useState(false)
   const [recoveryVisible, setRecoveryVisible] = React.useState(false)
+
   const handleMaskClick = (e) => {
     e.stopPropagation()
-  }
-
-  const handleDelete = () => {
-    const newData = data.filter((item) => item.id !== itemData.id)
-    setData(newData)
-    onClose()
   }
 
   const handleEdit = () => {
     setEditVisible(true)
   }
 
+  const handleDelete = () => {
+    setDeleteVisible(true)
+  }
+
   const handleRecovery = () => {
     setRecoveryVisible(true)
   }
 
-  const handleCopy = () => {}
-
   const handleShare = () => {}
 
   const handlePin = () => {
-    const item = data.find((item) => item.id === itemData.id)
+    const item = dataList.find((item) => item.id === itemData.id)
     const nextPinned = !item.pinned
-    const pinnedData = data.filter(
+    const pinnedData = dataList.filter(
       (item) => item.pinned && item.id !== itemData.id
     )
-    const unpinnedData = data.filter(
+    const unpinnedData = dataList.filter(
       (item) => !item.pinned && item.id !== itemData.id
     )
     if (nextPinned) {
-      setData([
+      setDataList([
         {
           ...item,
           pinned: true
@@ -74,7 +73,7 @@ const ItemActions: React.FC<{
         ...unpinnedData
       ])
     } else {
-      setData([
+      setDataList([
         ...pinnedData,
         {
           ...item,
@@ -92,9 +91,10 @@ const ItemActions: React.FC<{
 
   if (!visible) return null
 
-  const { pinned, account, issuer, recoveryCodes } = itemData
-  const recoveryBtnVisible = true
-  // Array.isArray(recoveryCodes) && recoveryCodes.length > 0
+  const { pinned, account, issuer, recoveryCodes, deleted } = itemData
+
+  const recoveryBtnVisible =
+    Array.isArray(recoveryCodes) && recoveryCodes.length > 0
   const url = generateOtpAuthUrl(itemData)
 
   return (
@@ -114,15 +114,15 @@ const ItemActions: React.FC<{
         }}
         className="absolute top-0 left-0 right-0 bottom-0 bg-[#0006]"
       />
-      <OptForm
+      <EditModal
+        data={itemData}
         visible={editVisible}
         onClose={() => {
           onClose()
           setEditVisible(false)
         }}
-        editItem={itemData}
       />
-      <RecoveryCodes
+      <RecoveryCodeModal
         data={itemData}
         title="恢复密钥"
         visible={recoveryVisible}
@@ -131,54 +131,58 @@ const ItemActions: React.FC<{
           setRecoveryVisible(false)
         }}
       />
-      <Modal
-        width={width}
+      <QRCodeModal
+        data={itemData}
         visible={qrVisible}
         onClose={() => {
-          onClose()
           setQrVisible(false)
         }}
-        footer={null}>
-        <div className="w-full h-full flex flex-col items-center">
-          <QRDsj qrcode={encodeData({ text: url })} />
-          <div className="text-xl font-bold">
-            {issuer} - {account}
-          </div>
-        </div>
-      </Modal>
+      />
+      <DeleteModal
+        data={itemData}
+        visible={deleteVisible}
+        onClose={() => {
+          onClose()
+          setDeleteVisible(false)
+        }}
+      />
       <div
         style={{
           borderBottomLeftRadius: radius,
           borderBottomRightRadius: radius
         }}
         className="absolute bottom-0 right-0 left-0 h-32 bg-base-100 flex flex-col">
-        <div className="flex-1 flex items-center justify-between px-2">
-          <button
-            onClick={handleShare}
-            className="btn btn-ghost px-2 hover:text-primary">
-            <div className="flex flex-col items-center justify-center gap-1">
-              <Share2 size={18} />
-              <span className="text-xs font-normal">分享</span>
-            </div>
-          </button>
-          <button
-            onClick={handlePin}
-            className="btn btn-ghost px-2 hover:text-secondary">
-            <div className="flex flex-col items-center justify-center gap-1">
-              {!pinned && (
-                <Fragment>
-                  <Pin size={18} />
-                  <span className="text-xs font-normal">置顶</span>
-                </Fragment>
-              )}
-              {pinned && (
-                <Fragment>
-                  <PinOff size={18} />
-                  <span className="text-xs font-normal">取消</span>
-                </Fragment>
-              )}
-            </div>
-          </button>
+        <div className="flex-1 flex items-center justify-around px-2">
+          {!deleted && (
+            <button
+              onClick={handleShare}
+              className="btn btn-ghost px-2 hover:text-primary">
+              <div className="flex flex-col items-center justify-center gap-1">
+                <Share2 size={18} />
+                <span className="text-xs font-normal">分享</span>
+              </div>
+            </button>
+          )}
+          {!deleted && (
+            <button
+              onClick={handlePin}
+              className="btn btn-ghost px-2 hover:text-secondary">
+              <div className="flex flex-col items-center justify-center gap-1">
+                {!pinned && (
+                  <Fragment>
+                    <Pin size={18} />
+                    <span className="text-xs font-normal">置顶</span>
+                  </Fragment>
+                )}
+                {pinned && (
+                  <Fragment>
+                    <PinOff size={18} />
+                    <span className="text-xs font-normal">取消</span>
+                  </Fragment>
+                )}
+              </div>
+            </button>
+          )}
           <button
             onClick={handleQr}
             className="btn btn-ghost px-2 hover:text-accent">
@@ -187,14 +191,16 @@ const ItemActions: React.FC<{
               <span className="text-xs font-normal">二维码</span>
             </div>
           </button>
-          <button
-            onClick={handleEdit}
-            className="btn btn-ghost px-2 hover:text-info">
-            <div className="flex flex-col items-center justify-center gap-1">
-              <Pencil size={18} />
-              <span className="text-xs font-normal">编辑</span>
-            </div>
-          </button>
+          {!deleted && (
+            <button
+              onClick={handleEdit}
+              className="btn btn-ghost px-2 hover:text-info">
+              <div className="flex flex-col items-center justify-center gap-1">
+                <Pencil size={18} />
+                <span className="text-xs font-normal">编辑</span>
+              </div>
+            </button>
+          )}
           {recoveryBtnVisible && (
             <button
               onClick={handleRecovery}
@@ -225,6 +231,98 @@ const ItemActions: React.FC<{
         </div>
       </div>
     </div>
+  )
+}
+
+const QRCodeModal: React.FC<{
+  data: DataProps
+  visible: boolean
+  onClose: () => void
+}> = (props) => {
+  const { visible, onClose, data } = props
+  const { issuer, account } = data
+  const { width } = useModalWidth()
+  const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
+  const url = generateOtpAuthUrl(data)
+
+  const handleCopy = () => {
+    copyTextToClipboardV2(url)
+    message.success("复制成功")
+  }
+
+  const handleDownload = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const url = canvas.toDataURL("image/png")
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${issuer}-${account}-${new Date().toLocaleString()}.png`
+    a.click()
+  }
+
+  return (
+    <Modal
+      title={
+        <div className="flex items-center justify-center gap-2">
+          <FaviconMinimal className="!text-2xl" issuer={issuer} />
+          <span>{account}</span>
+        </div>
+      }
+      width={width}
+      visible={visible}
+      onClose={onClose}
+      footer={null}>
+      <div className="w-full h-full flex flex-col items-center">
+        <QRCodeCanvas value={url} size={240} ref={canvasRef} />
+        <div>
+          <div className="flex items-center justify-center">
+            <button onClick={handleCopy} className="btn btn-link">
+              复制
+            </button>
+            <button onClick={handleDownload} className="btn btn-link">
+              下载
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+const DeleteModal: React.FC<{
+  data: DataProps
+  visible: boolean
+  onClose: () => void
+}> = (props) => {
+  const { visible, onClose, data } = props
+  const { width } = useModalWidth()
+  const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
+
+  const { issuer, account } = data
+
+  const handleDelete = () => {
+    setDataList(dataList.filter((item) => item.id !== data.id))
+    onClose()
+  }
+
+  return (
+    <Modal
+      width={width}
+      title={
+        <div className="flex items-center gap-2">
+          <FaviconMinimal className="!text-2xl" issuer={issuer} />
+          <span>{account}</span>
+        </div>
+      }
+      visible={visible}
+      onClose={onClose}
+      onOk={handleDelete}
+      okText="删除"
+      confirmButtonClassName="btn-error">
+      <div className="font-bold text-lg flex items-center gap-2">
+        确定要删除吗？
+      </div>
+    </Modal>
   )
 }
 

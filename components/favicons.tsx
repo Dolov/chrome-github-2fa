@@ -1,3 +1,4 @@
+import { clsx } from "clsx"
 import cloudflare from "data-base64:~assets/cloudflare.png"
 import github from "data-base64:~assets/github.png"
 import React from "react"
@@ -71,12 +72,18 @@ const Favicon = ({ issuer }: { issuer: string }) => {
   return <Icon className="text-2xl" />
 }
 
-export const FaviconMinimal = ({ issuer }: { issuer: string }) => {
+export const FaviconMinimal = ({
+  issuer,
+  className
+}: {
+  issuer: string
+  className?: string
+}) => {
   const vendor = issuer.toLowerCase()
   const Icon = minimalIconMap[vendor]
 
   if (Icon) {
-    return <Icon className="text-xl" />
+    return <Icon className={clsx("text-xl", className)} />
   }
 
   return issuer

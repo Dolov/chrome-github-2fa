@@ -5,7 +5,7 @@ import React, { useState } from "react"
 import Modal from "~components/ui/modal"
 import { type DataProps } from "~utils/constant"
 import { useUpdateCopiedCodeStatus } from "~utils/hooks"
-import { copyTextToClipboard } from "~utils/index"
+import { copyTextToClipboardV2 } from "~utils/index"
 
 import { useModalWidth } from "./hooks"
 
@@ -27,7 +27,7 @@ const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
 
   const handleCopy = (code: string) => {
     setCopiedCode(code) // 设置当前复制的代码
-    copyTextToClipboard(code)
+    copyTextToClipboardV2(code)
     setTimeout(() => {
       setCopiedCode(null) // n 秒后恢复为 ClipboardCopy 图标
       updateCodeStatus(data.id, code)

@@ -6,16 +6,9 @@ import React from "react"
 import { useStorage } from "@plasmohq/storage/hook"
 
 import { type DataProps } from "~/utils/constant"
-import Favicon, { elegantImageMap, minimalIconMap } from "~components/favicons"
+import Favicon from "~components/favicons"
 import OtpRemaining from "~components/otp-remaining"
 import OtpText from "~components/otp-text"
-import message from "~components/ui/message"
-import {
-  copyTextToClipboard,
-  generateOtp,
-  getProgressColor,
-  getRemainingTime
-} from "~utils"
 import { StorageKey } from "~utils/constant"
 
 import { GlobalContext } from "./context"
@@ -58,24 +51,17 @@ interface ListItemProps {
 
 const ListItem: React.FC<ListItemProps> = (props) => {
   const { data } = props
-  const { pinned, issuer, secret, account } = data
+  const { pinned, issuer, secret, account, deleted } = data
   const [actionVisible, setActionVisible] = React.useState(false)
-
-  const handleCopy = () => {
-    const otp = generateOtp(secret)
-    copyTextToClipboard(otp)
-    message.success(`复制成功`)
-  }
 
   return (
     <div
-      onClick={handleCopy}
-      className={clsx(
-        "group relative bg-base-200 py-4 mb-4 rounded-btn overflow-hidden hover:shadow-lg",
-        {
-          "shadow-lg": pinned
-        }
-      )}>
+      className={clsx("group relative py-4 mb-4 rounded-btn overflow-hidden", {
+        "shadow-lg": pinned,
+        "bg-base-300": deleted,
+        "bg-base-200": !deleted,
+        "hover:shadow-lg": !deleted
+      })}>
       <OtpRemaining className="absolute top-[0px] h-[3px]" />
       {pinned && <div className="absolute top-0 left-0 w-2 h-full bg-accent" />}
       <ItemActions

@@ -1,7 +1,8 @@
 import clsx from "clsx"
 import React from "react"
 
-import { generateOtp } from "~utils"
+import message from "~components/ui/message"
+import { copyTextToClipboardV2, generateOtp } from "~utils"
 
 interface OtpTextProps {
   secret: string
@@ -28,8 +29,13 @@ const OtpText: React.FC<OtpTextProps> = (props) => {
     return () => clearInterval(interval.current)
   }, [next])
 
+  const handleClick = () => {
+    copyTextToClipboardV2(otp)
+    message.success("复制成功")
+  }
+
   return (
-    <div className={className}>
+    <div className={className} onClick={handleClick}>
       <span
         className={clsx({
           "mr-1": small,

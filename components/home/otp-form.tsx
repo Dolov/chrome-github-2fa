@@ -1,4 +1,3 @@
-import clsx from "clsx"
 import React from "react"
 
 import { useStorage } from "@plasmohq/storage/hook"
@@ -8,7 +7,7 @@ import { StorageKey, type DataProps } from "~utils/constant"
 
 import { useModalWidth } from "./hooks"
 
-const defaultForm = {
+const defaultForm: Partial<DataProps> = {
   issuer: "",
   secret: "",
   account: "",
@@ -18,23 +17,23 @@ const defaultForm = {
 const OtpForm: React.FC<{
   visible: boolean
   onClose: () => void
-  editItem?: any
+  data?: DataProps
 }> = (props) => {
-  const { visible, onClose, editItem } = props
+  const { visible, onClose, data } = props
   const { width } = useModalWidth()
-  const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const title = "输入账户详细信息"
-  const [form, setForm] = React.useState({
+  const [form, setForm] = React.useState<DataProps>({
     ...defaultForm,
-    ...editItem
+    ...data
   })
 
   const handleOk = () => {
     const { issuer, secret, account, remark } = form
     if (!issuer || !secret || !account) return
-    if (editItem) {
-      const newData = data.map((item) => {
-        if (item.id === editItem.id) {
+    if (data) {
+      const newData = dataList.map((item) => {
+        if (item.id === data.id) {
           return {
             ...item,
             issuer,
@@ -45,7 +44,7 @@ const OtpForm: React.FC<{
         }
         return item
       })
-      setData(newData)
+      setDataList(newData)
     } else {
       const id = `${Date.now()}`
       const item = {
@@ -56,10 +55,10 @@ const OtpForm: React.FC<{
         account,
         remark
       }
-      setData([...data, item as DataProps])
+      setDataList([...dataList, item as DataProps])
     }
     onClose()
-    setForm(defaultForm)
+    setForm(defaultForm as DataProps)
   }
 
   return (
