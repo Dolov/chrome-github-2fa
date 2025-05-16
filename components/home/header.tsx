@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   return (
     <div
-      className={clsx("h-16 flex justify-between items-center px-4", {
+      className={clsx("h-16 grid grid-cols-[1fr_2fr_1fr] items-center px-4", {
         "mt-4": containerType === "phone"
       })}>
       <div className="dropdown dropdown-hover">
@@ -69,10 +69,14 @@ const Header: React.FC<HeaderProps> = (props) => {
           </li>
         </ul>
       </div>
-      <div className="text-2xl font-bold">Github 2FA</div>
-      <button className="btn btn-ghost btn-sm btn-circle">
-        <Search />
-      </button>
+      <div className="text-2xl font-bold text-center whitespace-nowrap">
+        Github 2FA
+      </div>
+      <div className="flex justify-end">
+        <button className="btn btn-ghost btn-sm btn-circle">
+          <Search />
+        </button>
+      </div>
     </div>
   )
 }

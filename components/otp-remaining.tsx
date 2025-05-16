@@ -1,13 +1,15 @@
+import clsx from "clsx"
 import React from "react"
 
 import { getProgressColor, getRemainingTime } from "~utils"
 
 interface OtpRemainingProps {
+  deleted?: boolean
   className?: string
 }
 
 const OtpRemaining: React.FC<OtpRemainingProps> = (props) => {
-  const { className } = props
+  const { className, deleted } = props
   const interval = React.useRef(null)
 
   const [timeRemaining, setTimeRemaining] = React.useState(() => {
@@ -28,7 +30,10 @@ const OtpRemaining: React.FC<OtpRemainingProps> = (props) => {
     <progress
       max={30}
       value={timeRemaining}
-      className={`progress ${color} w-full h-[3px] bg-base-200 ${className}`}
+      className={clsx(`progress w-full h-[3px] bg-base-200 ${className}`, {
+        [color]: !deleted,
+        "base-content": deleted
+      })}
     />
   )
 }

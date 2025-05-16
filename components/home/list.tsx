@@ -62,7 +62,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
         "bg-base-200": !deleted,
         "hover:shadow-lg": !deleted
       })}>
-      <OtpRemaining className="absolute top-[0px] h-[3px]" />
+      <OtpRemaining deleted={deleted} className="absolute top-[0px] h-[3px]" />
       {pinned && <div className="absolute top-0 left-0 w-2 h-full bg-accent" />}
       <ItemActions
         visible={actionVisible}
@@ -90,7 +90,10 @@ const ListItem: React.FC<ListItemProps> = (props) => {
         <div className="mt-2 flex justify-between items-center">
           <OtpText
             secret={secret}
-            className="font-bold text-2xl text-primary"
+            className={clsx("font-bold text-2xl", {
+              "text-primary": !deleted,
+              "text-base-content": deleted
+            })}
           />
           <div>
             <div className="base-content text-[0.6rem] text-right">下一个</div>
@@ -98,7 +101,10 @@ const ListItem: React.FC<ListItemProps> = (props) => {
               next
               small
               secret={secret}
-              className="text-secondary text-sm font-medium"
+              className={clsx("text-sm font-medium", {
+                "text-secondary": !deleted,
+                "text-base-content": deleted
+              })}
             />
           </div>
         </div>
