@@ -44,7 +44,10 @@ export const saveOTP = async (otpData: DataProps) => {
 
   if (oldItemIndex !== -1) {
     existingData[oldItemIndex].deleted = true
-    existingData.push(otpData)
+    existingData.push({
+      recoveryCodes: existingData[oldItemIndex].recoveryCodes || [],
+      ...otpData
+    })
     return await storage.set(StorageKey.DATA, existingData)
   }
 

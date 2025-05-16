@@ -1,5 +1,6 @@
 import clsx from "clsx"
 import {
+  History,
   KeyRound,
   Pencil,
   Pin,
@@ -50,6 +51,16 @@ const ItemActions: React.FC<{
 
   const handleRecovery = () => {
     setRecoveryVisible(true)
+  }
+
+  // 恢复已删除的条目
+  const handleRestore = () => {
+    const updatedList = dataList.map((item) =>
+      item.id === itemData.id ? { ...item, deleted: false } : item
+    )
+    setDataList(updatedList)
+    message.success("已恢复")
+    onClose()
   }
 
   const handleShare = () => {}
@@ -211,6 +222,16 @@ const ItemActions: React.FC<{
               </div>
             </button>
           )}
+          {deleted && (
+            <button
+              onClick={handleRestore}
+              className="btn btn-ghost px-2 hover:text-info">
+              <div className="flex flex-col items-center justify-center gap-1">
+                <History size={18} />
+                <span className="text-xs font-normal">恢复</span>
+              </div>
+            </button>
+          )}
           <button
             onClick={handleDelete}
             className="btn btn-ghost px-2 hover:text-error">
@@ -298,12 +319,22 @@ const DeleteModal: React.FC<{
   const { width } = useModalWidth()
   const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
 
-  const { issuer, account } = data
+  const { issuer, account, deleted } = data
 
   const handleDelete = () => {
-    setDataList(dataList.filter((item) => item.id !== data.id))
+    if (deleted) {
+      setDataList(dataList.filter((item) => item.id !== data.id))
+    } else {
+      setDataList(
+        dataList.map((item) =>
+          item.id === data.id ? { ...item, deleted: true } : item
+        )
+      )
+    }
     onClose()
   }
+
+  const text = deleted ? "删除后不可恢复，确定删除？" : "确定删除？"
 
   return (
     <Modal
@@ -319,9 +350,7 @@ const DeleteModal: React.FC<{
       onOk={handleDelete}
       okText="删除"
       confirmButtonClassName="btn-error">
-      <div className="font-bold text-lg flex items-center gap-2">
-        确定要删除吗？
-      </div>
+      <div className="font-bold text-lg flex items-center gap-2">{text}</div>
     </Modal>
   )
 }

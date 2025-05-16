@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   const deletedCount = data.filter((item) => item.deleted).length
   const normalCount = data.filter((item) => !item.deleted).length
-  const icon = filter === "deleted" ? <Trash /> : <Menu />
+  const deletedFilter = filter === "deleted"
 
   return (
     <div
@@ -29,12 +29,22 @@ const Header: React.FC<HeaderProps> = (props) => {
         "mt-4": containerType === "phone"
       })}>
       <div className="dropdown dropdown-hover">
-        <div
-          role="button"
-          tabIndex={0}
-          className="btn btn-ghost btn-sm btn-circle">
-          {icon}
-        </div>
+        {!deletedFilter && (
+          <div
+            role="button"
+            tabIndex={0}
+            className="btn btn-ghost btn-sm btn-circle">
+            <Menu />
+          </div>
+        )}
+        {deletedFilter && (
+          <button role="button" tabIndex={0} className="btn btn-sm relative">
+            <Trash size={18} className="text-error" />
+            <div className="badge badge-secondary absolute -right-4 -top-3">
+              {deletedCount}
+            </div>
+          </button>
+        )}
         <ul
           tabIndex={0}
           className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
