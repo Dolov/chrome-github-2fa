@@ -56,20 +56,31 @@ export const elegantImageMap: Record<string, string> = {
   cloudflare
 }
 
-const Favicon = ({ issuer }: { issuer: string }) => {
+const Favicon = ({
+  issuer,
+  className
+}: {
+  issuer: string
+  className?: string
+}) => {
   const [settings] = useStorage(StorageKey.SETTINGS, DEFAULT_SETTINGS)
   const minimal = settings.faviconType === "minimal"
   const vendor = issuer.toLowerCase()
   const Icon = minimalIconMap[vendor]
 
   if (minimal) {
-    return <Icon className="text-xl" />
+    return <Icon className={clsx("text-xl", className)} />
   }
   const img = elegantImageMap[vendor]
   if (img) {
-    return <img src={img} className="w-[120px] absolute right-0 -top-4" />
+    return (
+      <img
+        src={img}
+        className={clsx("w-[120px] absolute right-0 -top-4", className)}
+      />
+    )
   }
-  return <Icon className="text-2xl" />
+  return <Icon className={clsx("text-2xl", className)} />
 }
 
 export const FaviconMinimal = ({

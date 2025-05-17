@@ -82,7 +82,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
               <FileCog size={16} />
             </button>
           </div>
-          <Favicon issuer={issuer} />
+          <Favicon className={clsx({ grayscale: deleted })} issuer={issuer} />
         </div>
         <div className="base-content font-medium -translate-y-[2px]">
           {account}
