@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         label: (
           <div>
             全部
-            <div className="badge badge-secondary ml-2">{normalCount}</div>
+            <div className="badge badge-primary ml-2">{normalCount}</div>
           </div>
         ),
         onClick: () => setFilter("normal")
@@ -47,7 +47,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         label: (
           <div>
             已删除
-            <div className="badge badge-secondary ml-2">{deletedCount}</div>
+            <div className="badge badge-neutral ml-2">{deletedCount}</div>
           </div>
         ),
         onClick: () => setFilter("deleted")
@@ -76,7 +76,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           {deletedFilter && (
             <div>
               <Trash size={18} className="text-error" />
-              <div className="badge badge-secondary absolute -right-4 -top-3">
+              <div className="badge badge-neutral absolute -right-4 -top-3">
                 {deletedCount}
               </div>
             </div>
