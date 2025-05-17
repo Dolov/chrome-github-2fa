@@ -14,20 +14,31 @@ import { StorageKey } from "~utils/constant"
 import { GlobalContext } from "./context"
 import ItemActions from "./item-actions"
 
-interface ListProps {}
+interface ListProps {
+  keyword: string
+}
 
 const List: React.FC<ListProps> = (props) => {
   const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const { filter } = React.useContext(GlobalContext)
 
+  const { keyword } = props
+
   const filteredData = React.useMemo(() => {
     return data.filter((item) => {
-      if (filter === "deleted") {
-        return item.deleted
-      }
-      return !item.deleted
+      // 先根据 filter 过滤
+      const matchFilter = filter === "deleted" ? item.deleted : !item.deleted
+      if (!matchFilter) return false
+      // 再根据 keyword 过滤
+      if (!keyword) return true
+      const lKeyword = keyword.toLowerCase()
+      // 检查 issuer 和 account 字段是否包含 keyword
+      return (
+        (item.issuer && item.issuer.toLowerCase().includes(lKeyword)) ||
+        (item.account && item.account.toLowerCase().includes(lKeyword))
+      )
     })
-  }, [data, filter])
+  }, [data, filter, keyword])
 
   return (
     <div className="flex-1 overflow-auto px-4">

@@ -20,7 +20,7 @@ const Container: React.FC<ContainerProps> = (props) => {
   return (
     <div
       className={clsx(
-        "relative w-[350px] h-[600px] bg-base-100 flex flex-col"
+        "relative w-[350px] h-[600px] bg-base-100 flex flex-col pb-4"
       )}>
       {children}
     </div>

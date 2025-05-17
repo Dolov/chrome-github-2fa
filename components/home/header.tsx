@@ -1,5 +1,5 @@
 import clsx from "clsx"
-import { Menu, Search, Trash } from "lucide-react"
+import { Menu, Search, Trash, X } from "lucide-react"
 import React from "react"
 
 import { useStorage } from "@plasmohq/storage/hook"
@@ -9,16 +9,28 @@ import { StorageKey, type DataProps } from "~utils"
 
 import { GlobalContext } from "./context"
 
-interface HeaderProps {}
+interface HeaderProps {
+  keyword: string
+  setKeyword(value: string): void
+}
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { containerType, filter, setFilter } = React.useContext(GlobalContext)
   const [data = []] = useStorage<DataProps[]>(StorageKey.DATA)
+  const { keyword, setKeyword } = props
+  const [search, setSearch] = React.useState(false)
 
   const goSettings = () => {
     chrome.tabs.create({
       url: "tabs/settings.html"
     })
+  }
+
+  const handleSearch = () => {
+    setSearch(!search)
+    if (search) {
+      setKeyword("")
+    }
   }
 
   const deletedCount = data.filter((item) => item.deleted).length
@@ -65,14 +77,13 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   return (
     <div
-      className={clsx("h-16 grid grid-cols-[1fr_2fr_1fr] items-center px-4", {
+      className={clsx("grid grid-cols-[1fr_2fr_1fr] items-center px-4 h-16", {
         "mt-4": containerType === "phone"
       })}>
       <Dropdown trigger="hover" menus={menuItems}>
         <button
           className="btn btn-sm btn-circle btn-ghost relative"
           tabIndex={0}>
-          {!deletedFilter && <Menu />}
           {deletedFilter && (
             <div>
               <Trash size={18} className="text-error" />
@@ -81,14 +92,27 @@ const Header: React.FC<HeaderProps> = (props) => {
               </div>
             </div>
           )}
+          {!deletedFilter && <Menu size={20} />}
         </button>
       </Dropdown>
       <div className="text-2xl font-bold text-center whitespace-nowrap">
-        Github 2FA
+        {search && (
+          <input
+            autoFocus
+            className="input input-sm input-ghost border-none !outline-none"
+            placeholder="搜索"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
+        )}
+        {!search && <span>Github 2FA</span>}
       </div>
       <div className="flex justify-end">
-        <button className="btn btn-ghost btn-sm btn-circle">
-          <Search />
+        <button
+          onClick={handleSearch}
+          className="btn btn-ghost btn-sm btn-circle">
+          {search && <X size={20} />}
+          {!search && <Search size={20} />}
         </button>
       </div>
     </div>

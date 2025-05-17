@@ -16,11 +16,13 @@ interface HomeProps {
 const Home: React.FC<HomeProps> = (props) => {
   const { containerType, source } = props
 
+  const [keyword, setKeyword] = React.useState("")
+
   return (
     <Provider value={{ source, containerType }}>
       <Container>
-        <Header />
-        <List />
+        <Header keyword={keyword} setKeyword={setKeyword} />
+        <List keyword={keyword} />
         <Create />
       </Container>
     </Provider>
