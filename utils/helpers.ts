@@ -1,54 +1,70 @@
 import jsQR from "jsqr"
 
-// 复制文本到剪贴板
+// Copy text to clipboard (fallback method)
 export const copyTextToClipboard = (text: string) => {
-  const textArea = document.createElement("textarea")
+  const textArea = document.createElement("textarea") // Create a temporary textarea
   textArea.value = text
   document.body.appendChild(textArea)
   textArea.select()
 
   try {
-    const successful = document.execCommand("copy")
-    const msg = successful ? "已复制到剪贴板" : "复制失败"
+    const successful = document.execCommand("copy") // Try to execute copy command
+    const msg = successful ? "已复制到剪贴板" : "复制失败" // Success or failure message
     console.log(msg)
   } catch (err) {
-    console.error("无法复制文本", err)
+    console.error("无法复制文本", err) // Error copying text
   }
-  document.body.removeChild(textArea)
+  document.body.removeChild(textArea) // Clean up
 }
 
+// Copy text to clipboard using Clipboard API (modern method)
 export const copyTextToClipboardV2 = async (text: string) => {
   try {
-    await navigator.clipboard.writeText(text)
+    await navigator.clipboard.writeText(text) // Use Clipboard API
     console.log("已复制到剪贴板")
   } catch (err) {
     console.error("复制失败", err)
   }
 }
 
-// 下载Base64图片
+/** Sync local time with Google's server time */
+export const syncTimeWithGoogle = async () => {
+  const res = await fetch("https://www.google.com/generate_204") // Fetch a lightweight Google endpoint
+  const serverDate = res.headers.get("date") // Get server date header
+  const serverTime = new Date(serverDate).getTime() // Convert to timestamp
+  const clientTime = new Date().getTime() // Local timestamp
+  const offset = Math.round((serverTime - clientTime) / 1000) // Calculate offset in seconds
+
+  return {
+    offset,
+    clientTime,
+    serverTime
+  }
+}
+
+// Download a Base64-encoded image as a file
 export const downloadBase64Image = (base64Data: string, fileName: string) => {
-  const byteCharacters = atob(base64Data.split(",")[1])
+  const byteCharacters = atob(base64Data.split(",")[1]) // Decode base64
   const byteNumbers = new Uint8Array(byteCharacters.length)
   for (let i = 0; i < byteCharacters.length; i++) {
     byteNumbers[i] = byteCharacters.charCodeAt(i)
   }
-  const blob = new Blob([byteNumbers], { type: "image/png" })
+  const blob = new Blob([byteNumbers], { type: "image/png" }) // Create blob
 
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
+  const url = URL.createObjectURL(blob) // Create object URL
+  const a = document.createElement("a") // Create download link
   a.href = url
   a.download = fileName || "download.png"
   document.body.appendChild(a)
-  a.click()
+  a.click() // Trigger download
   document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  URL.revokeObjectURL(url) // Clean up
 }
 
-// 检查是否可注入内容脚本
+// Check if content script can be injected into the current tab
 export const canInjectContentScript = async (): Promise<boolean> => {
   try {
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true }) // Get current active tab
     const currentTab = tabs[0]
 
     if (!currentTab?.id) {
@@ -57,16 +73,16 @@ export const canInjectContentScript = async (): Promise<boolean> => {
 
     await chrome.scripting.executeScript({
       target: { tabId: currentTab.id },
-      func: () => true
+      func: () => true // Try to execute a simple script
     })
 
-    return true
+    return true // Injection successful
   } catch (error) {
-    return false
+    return false // Injection failed
   }
 }
 
-// 等待DOM元素出现
+// Wait for a DOM element to appear in the document
 export const waitForElement = <T extends Element = Element>(
   selector: string,
   once = false
@@ -83,13 +99,14 @@ export const waitForElement = <T extends Element = Element>(
         for (const node of mutation.addedNodes) {
           if (!(node instanceof HTMLElement)) continue
 
+          // Check if the added node matches the selector
           const target = node.matches?.(selector)
             ? node
             : node.querySelector?.(selector)
 
           if (target) {
             if (once) {
-              observer.disconnect()
+              observer.disconnect() // Stop observing if only once
             }
             resolve(target as T)
             return
@@ -105,7 +122,7 @@ export const waitForElement = <T extends Element = Element>(
   })
 }
 
-// 从URL提取动态段
+// Extract dynamic segment from URL based on template
 export const extractDynamicSegment = (
   url: string,
   template: string | string[]
@@ -114,19 +131,19 @@ export const extractDynamicSegment = (
 
   for (const t of templates) {
     const templateRegex = t
-      .replace(/\//g, "\\/") // 转义斜杠
-      .replace(/\*/g, "([^/]+)") // 将 * 替换为捕获分组
+      .replace(/\//g, "\\/") // Escape slashes
+      .replace(/\*/g, "([^/]+)") // Replace * with capture group
 
     const match = url.match(new RegExp(templateRegex))
     if (match) {
-      return match[1]
+      return match[1] // Return the captured segment
     }
   }
 
   return null
 }
 
-// 等待URL路径匹配
+// Wait for the URL path to strictly match a pattern (or patterns)
 export const waitForPathMatchStrict = ({
   endsWith
 }: {
@@ -136,10 +153,10 @@ export const waitForPathMatchStrict = ({
 
   const regexList = patterns.map((pattern) => {
     const escaped = pattern
-      .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&") // 转义特殊字符
-      .replace(/\*/g, "[^/?#]+") // * 匹配非 /、?、# 的片段
+      .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&") // Escape special characters
+      .replace(/\*/g, "[^/?#]+") // * matches any non-/, ?, # segment
 
-    return new RegExp(escaped + "$") // 只需确保"以这个结尾"
+    return new RegExp(escaped + "$") // Ensure it ends with the pattern
   })
 
   return new Promise((resolve) => {
@@ -155,25 +172,25 @@ export const waitForPathMatchStrict = ({
   })
 }
 
-// 从图片读取二维码
+// Read QR code from an image element
 export const readQRCodeFromImage = (img: HTMLImageElement): Promise<string> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas")
     const ctx = canvas.getContext("2d")
-    if (!ctx) return reject(new Error("无法获取 Canvas 上下文"))
+    if (!ctx) return reject(new Error("无法获取 Canvas 上下文")) // Cannot get canvas context
 
     canvas.width = img.width
     canvas.height = img.height
     ctx.drawImage(img, 0, 0, img.width, img.height)
 
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    const code = jsQR(imageData.data, imageData.width, imageData.height)
+    const code = jsQR(imageData.data, imageData.width, imageData.height) // Decode QR
 
-    code ? resolve(code.data) : reject(new Error("未找到二维码"))
+    code ? resolve(code.data) : reject(new Error("未找到二维码")) // Not found
   })
 }
 
-// 从文件读取二维码
+// Read QR code from a file (image file)
 export const readQRCodeFromFile = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -189,6 +206,7 @@ export const readQRCodeFromFile = (file: File): Promise<string> => {
   })
 }
 
+// Sleep for a given number of milliseconds
 export const sleep = (ms = 1000) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }

@@ -13,7 +13,7 @@ import { type DataProps } from "~utils/constant"
 import message from "~utils/message"
 
 export const config: PlasmoCSConfig = {
-  matches: ["https://github.com/*"],
+  matches: ["<all_urls>"],
   all_frames: false
 }
 
