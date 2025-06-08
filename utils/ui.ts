@@ -21,12 +21,15 @@ interface StyleContainer {
  * @param styleContent 样式内容
  */
 const insertStyleIfNeeded = (styleId: string, styleContent: string) => {
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement("style")
-    style.id = styleId
-    style.textContent = styleContent
-    document.head.appendChild(style)
+  let style = document.getElementById(styleId)
+  if (style) {
+    return style
   }
+  style = document.createElement("style")
+  style.id = styleId
+  style.textContent = styleContent
+  document.head.appendChild(style)
+  return style
 }
 
 /**

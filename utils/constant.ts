@@ -41,7 +41,7 @@ export interface OtpAuthConfig {
   type: "totp" | "hotp"
   secret: string
   account: string
-  issuer?: string
+  issuer: string
   digits?: number
   period?: number // Only for TOTP
   counter?: number // Only for HOTP

@@ -16,9 +16,9 @@ const DEFAULT_AUTHENTICATOR_CONFIG: AuthenticatorConfig = {
 }
 
 /**
- * 解析 OTPAuth URL 为配置对象
- * @param otpauthUrl OTPAuth URL 字符串
- * @throws {Error} 当 URL 格式无效时抛出错误
+ * Parse OTPAuth URL to config object
+ * @param otpauthUrl OTPAuth URL string
+ * @throws {Error} If URL format is invalid
  */
 export const parseOtpAuthUrl = (otpauthUrl: string): OtpAuthConfig => {
   // otpauth://totp/GitHub:acloudfly?secret=N2CNXSJV7LG75BUI&issuer=GitHub
@@ -81,32 +81,43 @@ export const parseOtpAuthUrl = (otpauthUrl: string): OtpAuthConfig => {
     throw new Error("HOTP type requires a valid numeric 'counter'")
   }
 
-  return {
+  const result: OtpAuthConfig = {
     type,
     secret,
     issuer,
-    account,
-    ...(algorithm && { algorithm }),
-    ...(digits !== undefined && { digits }),
-    ...(period !== undefined && { period }),
-    ...(counter !== undefined && { counter })
+    account
   }
+
+  if (algorithm) {
+    result.algorithm = algorithm
+  }
+  if (digits) {
+    result.digits = digits
+  }
+  if (period) {
+    result.period = period
+  }
+  if (counter) {
+    result.counter = counter
+  }
+
+  return result
 }
 
 /**
- * 根据配置生成 OTPAuth URL
- * @param config OTPAuth 配置对象
+ * Generate OTPAuth URL from config
+ * @param config OTPAuth config object
  */
 export function generateOtpAuthUrl(config: OtpAuthConfig): string {
   const {
     type,
-    account,
     secret,
     issuer,
+    account,
+    counter,
     digits = 6,
     period = 30,
-    algorithm = "SHA1",
-    counter
+    algorithm = "SHA1"
   } = config
 
   const label = issuer
@@ -115,9 +126,9 @@ export function generateOtpAuthUrl(config: OtpAuthConfig): string {
 
   const params = new URLSearchParams({
     secret,
+    algorithm,
     digits: digits.toString(),
-    period: period.toString(),
-    algorithm
+    period: period.toString()
   })
 
   if (issuer) {
@@ -131,9 +142,9 @@ export function generateOtpAuthUrl(config: OtpAuthConfig): string {
 }
 
 /**
- * 生成 OTP 验证码
- * @param secret 密钥
- * @param generateNext 是否生成下一个周期的验证码
+ * Generate OTP code
+ * @param secret Secret key
+ * @param generateNext Generate for next period
  */
 export const generateOtp = (secret: string, generateNext = false): string => {
   const config = { ...DEFAULT_AUTHENTICATOR_CONFIG }
@@ -148,7 +159,7 @@ export const generateOtp = (secret: string, generateNext = false): string => {
 }
 
 /**
- * 获取当前 OTP 剩余有效时间
+ * Get remaining time for current OTP
  */
 export const getRemainingTime = (): number => {
   authenticator.options = {
@@ -159,8 +170,8 @@ export const getRemainingTime = (): number => {
 }
 
 /**
- * 根据剩余时间获取进度条颜色
- * @param timeRemaining 剩余时间（秒）
+ * Get progress bar color by remaining time
+ * @param timeRemaining Remaining seconds
  */
 export const getProgressColor = (timeRemaining: number): string => {
   if (timeRemaining > 10) return "progress-primary"
@@ -169,17 +180,19 @@ export const getProgressColor = (timeRemaining: number): string => {
 }
 
 /**
- * 验证字符串是否为有效的 OTPAuth URL
- * @param data 待验证的字符串
+ * Check if string is a valid OTPAuth URL
+ * @param data String to check
  */
 export const isOtpAuthUrl = (data: string): boolean => {
   if (!data) return false
-  return data.startsWith("otpauth://")
+  if (!data.startsWith("otpauth://")) return false
+  if (!data.includes("secret=")) return false
+  return true
 }
 
 /**
- * 从图片中读取二维码数据
- * @param img HTML 图片元素
+ * Decode QR code from image
+ * @param img HTMLImageElement
  */
 export const decodeQRCode = (img: HTMLImageElement): Promise<string> => {
   return new Promise((resolve, reject) => {
