@@ -227,6 +227,10 @@ interface OtpMessageOptions {
   style?: Partial<CSSStyleDeclaration>
   /** 是否将 OTP 显示在输入框的 placeholder 中 */
   placeholder?: boolean
+  /** 是否显示账号 */
+  account?: string
+  /** 是否自动填充 */
+  autoFill?: boolean
 }
 
 /**
@@ -241,7 +245,7 @@ export const startOtpMessageUpdater = (
   secret: string,
   options: OtpMessageOptions = {}
 ) => {
-  const { style = {}, placeholder } = options
+  const { style = {}, placeholder, account, autoFill = true } = options
 
   insertStyleIfNeeded(
     `${PREFIX}-otp-message-style`,
@@ -266,13 +270,28 @@ export const startOtpMessageUpdater = (
     const timeRemaining = getRemainingTime()
     const otp = generateOtp(secret)
 
-    if (placeholder) {
+    if (autoFill && placeholder) {
       input.placeholder = `请输入 ${otp}`
-    } else {
+    }
+    if (autoFill && !placeholder) {
       input.value = otp
     }
 
-    textElement.innerHTML = `2FA 服务由 <a class="${PREFIX}-gradient-link" href="https://github.com/Dolov/chrome-github-2fa" target="_blank">github-2fa</a> 扩展提供，感谢使用！(有效期：${timeRemaining}秒)`
+    const accountHtml = account
+      ? `<div style="font-size:16px;font-weight:bold;text-align:center;margin-bottom:2px;">${account}</div>`
+      : ""
+
+    const infoHtml = `
+      <div style="text-align:center;">
+        2FA 服务由
+        <a class="${PREFIX}-gradient-link" href="https://github.com/Dolov/chrome-github-2fa" target="_blank">
+          github-2fa
+        </a>
+        扩展提供，感谢使用！(有效期：${timeRemaining}秒)
+      </div>
+    `
+
+    textElement.innerHTML = `${accountHtml}${infoHtml}`
   }
 
   updateOtpMessage()

@@ -57,10 +57,17 @@ export const saveOTP = async (otpData: DataProps) => {
 
 export const getOTPList = async (
   issuer: string,
-  account: string
+  account?: string
 ): Promise<DataProps[]> => {
   const data = await storage.get<DataProps[]>(StorageKey.DATA)
   if (!data) return []
+
+  if (!account) {
+    return data.filter(
+      (item) =>
+        !item.deleted && item.issuer.toLowerCase() === issuer.toLowerCase()
+    )
+  }
 
   return data.filter(
     (item) =>
