@@ -3,7 +3,7 @@ import type { PlasmoCSConfig } from "plasmo"
 import { getOTPList, startOtpMessageUpdater, waitForElement } from "~utils"
 import { Issuers } from "~utils/constant"
 
-import { getGitHubUserName } from "./utils"
+import { getGitHubUserName } from "./github-utils"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://github.com/*"],

@@ -10,7 +10,7 @@ import {
   waitForPathMatchStrict
 } from "~utils"
 
-import { scanQRCode } from "../qr-parse/auto"
+import { scanQRCode } from "./auto"
 
 export const config: PlasmoCSConfig = {
   matches: [

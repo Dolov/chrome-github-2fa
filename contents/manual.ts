@@ -11,6 +11,7 @@ import { ActionType, contentBaseZindex } from "~utils/constant"
 import message from "~utils/message"
 
 const containerId = "github-2fa-container-1742783738736"
+const debugCanvasSelector = `${containerId}-debug-canvas`
 export const getShadowHostId: PlasmoGetShadowHostId = () => containerId
 
 export const config: PlasmoCSConfig = {
@@ -50,6 +51,8 @@ const addScreenshotOverlay = (sendResponse, messageText) => {
   const dismissAll = () => {
     overlay.remove()
     messageVm.destroy()
+    const debugCanvas = document.querySelectorAll(`.${debugCanvasSelector}`)
+    debugCanvas.forEach((canvas) => canvas.remove())
     selectionBox && selectionBox.remove()
     document.removeEventListener("keydown", handleEsc)
     document.removeEventListener("mouseup", handleMouseUp)
@@ -175,6 +178,7 @@ const cropImage = (dataUrl, x, y, width, height): Promise<string> => {
 
       // debug 模式，将 canvas 内容插入在页面上
       if (process.env.NODE_ENV === "development") {
+        canvas.classList.add(debugCanvasSelector)
         canvas.style.position = "fixed"
         canvas.style.top = "0"
         canvas.style.left = "0"

@@ -7,7 +7,7 @@ import {
 } from "~utils"
 import { Issuers } from "~utils/constant"
 
-import { getGitHubUserName } from "./utils"
+import { getGitHubUserName } from "./github-utils"
 
 export const config: PlasmoCSConfig = {
   matches: [
