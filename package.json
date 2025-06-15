@@ -6,8 +6,8 @@
   "author": "shisongyan. <songyan_shi@163.com>",
   "scripts": {
     "dev": "plasmo dev",
-    "build": "plasmo build",
-    "package": "plasmo package"
+    "build": "plasmo build && plasmo package",
+    "package": "plasmo build && plasmo package"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
