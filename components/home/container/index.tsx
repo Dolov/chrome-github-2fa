@@ -3,7 +3,7 @@ import React from "react"
 
 import { ContainerType } from "~utils/constant"
 
-import { GlobalContext } from "./context"
+import { GlobalContext } from "../context"
 import Phone from "./phone"
 
 export interface ContainerProps {
@@ -15,7 +15,7 @@ const Container: React.FC<ContainerProps> = (props) => {
   const { children } = props
   const { containerType } = React.useContext(GlobalContext)
   if (containerType === ContainerType.PHONE) {
-    return <Phone className="relative w-[350px] h-[600px]">{children}</Phone>
+    return <Phone className="relative w-[378px] h-[600px]">{children}</Phone>
   }
   return (
     <div
