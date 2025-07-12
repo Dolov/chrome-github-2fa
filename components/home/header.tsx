@@ -105,7 +105,7 @@ const Header: React.FC<HeaderProps> = (props) => {
             onChange={(e) => setKeyword(e.target.value)}
           />
         )}
-        {!search && <span>Github 2FA</span>}
+        {!search && <span>2FA Auth</span>}
       </div>
       <div className="flex justify-end">
         <button
