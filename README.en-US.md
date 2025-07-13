@@ -1,33 +1,64 @@
-# Easy GitHub 2FA authentication
+<div align="center">
 
-![GitHub commit activity](https://img.shields.io/github/commit-activity/y/dolov/chrome-github-2fa)
-![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/lhmckpbbfjnkbgekjinmhpcaojjiifcd)
-![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/lhmckpbbfjnkbgekjinmhpcaojjiifcd)
-![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/lhmckpbbfjnkbgekjinmhpcaojjiifcd)
+<img src="./screenshots/poster.png" />
 
+<br>
 
-[chrome web store](https://chromewebstore.google.com/detail/github-2fa/lhmckpbbfjnkbgekjinmhpcaojjiifcd)
-[Document](https://github.com/Dolov/chrome-github-2fa/issues/1)
+# TOTP Authenticator — Make Login Verification Easier and Safer
 
-Say goodbye to the hassle of 2FA verification by integrating our solution seamlessly into your workflow. Enjoy enhanced security and convenience as you navigate GitHub with ease.
+![GitHub commit activity](https://img.shields.io/github/commit-activity/y/dolov/chrome-2fa-auth)
+![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/iibjpaihhbdpicdgckhbikknalgeekph)
+![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/iibjpaihhbdpicdgckhbikknalgeekph)
+![Chrome Web Store Stars](https://img.shields.io/chrome-web-store/stars/iibjpaihhbdpicdgckhbikknalgeekph)
+![GitHub](https://img.shields.io/github/license/dolov/chrome-2fa-auth)
 
-### Feature
-- Automatically detects the QR code on the page, generates dynamic 2FA codes, and inserts them into the page.
-- Can save Recovery Codes to the plugin, record their usage status to prevent loss.
-- Can store data for multiple GitHub accounts.
-- Features an exquisite and minimalist UI, simple operation, and ensures data security.
+</div>
 
-### Set 2FA Code
-![img](./screenshots/WX20240416-093157@2x.png)
+<div align="center">
+  <a href="https://chromewebstore.google.com/detail/iibjpaihhbdpicdgckhbikknalgeekph" target="_blank">
+    <img src="https://www.google.com/chrome/static/images/favicons/favicon-32x32.png" width="16" /> Install from Chrome Web Store
+  </a>
+  <p>An open-source and free 2FA extension built for security and efficiency. Supports QR code scanning, region selection, form input, and QR code uploads—making multi-platform account management a breeze. Elegant interface and smooth experience.</p>
 
-![img](./screenshots/WX20240416-095619@2x.png)
+English | [简体中文](./README.md)
 
-### Login With Authentication
-![img](./screenshots/WX20240416-111958@2x.png)
+</div>
 
-### Save recovery codes
-![img](./screenshots/WX20240416-100522@2x.png)
-![img](./screenshots/WX20240418-110208@2x.png)
-![img](./screenshots/WX20240418-114311@2x.png)
+## 🚀 Key Features
 
-### Welcome to use
+Do you find 2FA authentication tedious across different websites? Constantly switching apps, looking for your phone, and manually entering codes? 😵‍💫
+Don't worry—**Authenticator 🧩** is here to help!
+
+This is a **universal TOTP two-factor authenticator**, installed right in your browser. View codes instantly—no page switching, no phone needed!
+
+Elegant UI + lightning-fast access ✨
+**Authenticate faster and smoother—no more scrambling at login!**
+
+Say goodbye to authentication stress—this extension has got you covered! 🔐⚡️
+
+### Core Features
+
+- ✅ Multi-platform support with diverse input options: auto QR scanning, manual entry, screenshot import—fast and effortless.
+- 🔗 Deep integration with GitHub, NPM, and more for seamless autofill.
+- 🎨 Multiple theme colors to suit your style.
+- 💾 Backup and restore codes for reliable account recovery.
+- 🆓 Fully open-source and free to use—transparent, secure, and trustworthy.
+- More features are in the works...
+
+## Get Started Quickly
+
+## Welcome to 2fa-auth
+
+If you run into issues or have feature requests, feel free to submit them under **issues**—we’ll get back to you promptly! 🚀
+
+## 🛠️ Open Source & Contributions
+
+This project is open-source and welcomes all kinds of contributions!
+Have ideas, bug reports, or want to help develop? Submit an Issue or Pull Request.
+
+1️⃣ **Install Node.js** 👉 [Download here](https://nodejs.org/en/download/package-manager)
+2️⃣ **Install dependencies**: `npm i`
+3️⃣ **Build the project**: `npm build`
+4️⃣ **Package the extension**: `npm package`
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Dolov/chrome-2fa-auth&type=Date)](https://star-history.com/#Dolov/chrome-2fa-auth&Date)

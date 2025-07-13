@@ -60,9 +60,13 @@ const parseImage2faUrl = async (
   const parsedData = parseOtpAuthUrl(url)
   const { secret } = parsedData
 
-  const input = document.querySelector<HTMLInputElement>(
-    "input[data-target='two-factor-configure-otp-factor.appOtpInput']"
-  )
+  const input =
+    document.querySelector<HTMLInputElement>(
+      "input[data-target='two-factor-configure-otp-factor.appOtpInput']"
+    ) ||
+    document.querySelector<HTMLInputElement>(
+      "input[data-target='two-factor-setup-verification.appOtpInput']"
+    )
 
   if (input && secret) {
     startOtpMessageUpdater(input, secret, {
